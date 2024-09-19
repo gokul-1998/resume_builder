@@ -87,7 +87,8 @@ export default function Resume({ resumeData }) {
             <h2 className="font-semibold">Skills</h2>
             <div className="grid grid-cols-2 gap-2">
               {resumeData.skills.map((skill, index) => (
-                <li key={index} className="skill-item text-gray-800">{skill}</li>
+                <li key={index} className="skill-item text-gray-800">
+                  {skill}</li>
               ))}
             </div>
           </div>
