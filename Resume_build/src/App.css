@@ -87,6 +87,7 @@
   justify-content: center; /* Center icons horizontally */
   gap: 1rem; /* Adjust gap between icons if needed */
 }
+
 /* Skills section */
 .skills-list {
   list-style-type: none; /* Remove default list styling */
@@ -96,16 +97,34 @@
 
 .skill-item {
   position: relative;
-  padding-left: 1.5rem; /* Space for the bullet */
+  padding-left: 2rem; /* Increased space for the bullet */
+  margin-bottom: 0.5rem; /* Space between items */
 }
 
 .skill-item::before {
   content: '•'; /* Dotted bullet character */
   position: absolute;
-  left: 0;
+  left: 0; /* Align bullet to the left */
   color: #007bff; /* Adjust color if needed */
-  font-size: 1.25rem; /* Adjust size if needed */
+  font-size: 1.5rem; /* Adjust size if needed */
   line-height: 1; /* Ensure vertical alignment */
+  top: 0; /* Align bullet vertically */
 }
 
+/* Print Styles */
+@media print {
+  .skill-item::before {
+    content: '•'; /* Ensure bullet appears in print */
+    font-size: 1.2rem; /* Adjust size for print */
+  }
+
+  /* Ensure consistent styling and layout for print */
+  ul {
+    list-style-type: none; /* Remove default bullets */
+  }
+
+  .skill-item {
+    padding-left: 1.5rem; /* Adjust space for bullet in print */
+  }
+}
 
