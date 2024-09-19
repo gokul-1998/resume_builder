@@ -66,6 +66,16 @@
         "degree": "Bachelor of Science in Software Engineering",
         "institution": "State University",
         "year": "2015"
+      },
+      {
+        "degree": "Master of Science in Computer Science",
+        "institution": "University of Technology",
+        "year": "2017"
+      },
+      {
+        "degree": "Bachelor of Science in Software Engineering",
+        "institution": "State University",
+        "year": "2015"
       }
     ],
     "contact": [
@@ -82,17 +92,83 @@
         "value": "https://github.com/johndoe"
       }
     ],
-    "skills": [
-      "Python",
-      "Django",
-      "Flask",
-      "React",
-      "Redux",
-      "JavaScript",
-      "TypeScript",
-      "SQL"
-    ],
-    "awards": [
+    "skills":{
+        "Architectures": [
+            "MVC",
+            "RESTful",
+            "Microservices",
+            "Serverless",
+            "Progressive Web Apps",
+            "RBAC"
+          ],
+          "Languages": [
+            "Python",
+            "JavaScript",
+            "SQL",
+            "HTML",
+            "CSS"
+          ],
+          "TechStacks":[
+            "MERN",
+            "FARM"
+          ],
+          
+          "Frameworks": [
+            "Django",
+            "Flask",
+            "React",
+            "Vue.js",
+            "Express.js",
+            "Bootstrap",
+            "Node.js",
+            "Tailwind CSS"
+          ],
+          "libraries": [
+            "Numpy",
+            "Pandas",
+            "sqlalchemy",
+            "Redis",
+            "Celery",
+            "Shell-Scripting",
+            "Scikit-learn",
+            "Tensorflow",
+            "React",
+            "Redux",
+            "Material-UI",
+            "Bootstrap",
+            "JQuery"
+          ],
+          "Tools": [
+            "Git",
+            "Docker",
+            "Postman"
+          ],
+          "Databases": [
+            "PostgreSQL",
+            "MySQL",
+            "SQLite",
+            "MongoDB",
+            "Redis"
+          ],
+          "Cloud": [
+            "AWS",
+            "Google Cloud",
+            "Azure"
+          ],
+            "Testing": [
+                "Unit Testing",
+                "Integration Testing",
+                "End-to-End Testing",
+                "Test-Driven Development (TDD)"
+            ],
+            "DevOps": [
+                "CI/CD",
+                "Docker",
+                "Kubernetes"
+            ]
+
+    },
+    "awards and Certifications": [
       {
         "title": "AWS Certified Developer",
         "year": "2022"
@@ -107,6 +183,19 @@
         "organization": "Python Institute",
         "year": "2019"
       }
+    ],
+    "Interests": [
+        "Machine Learning",
+        "Data Science",
+        "Artificial Intelligence",
+        "Cybersecurity",
+        "Building Scalable Systems",
+        "Problem Solving",
+        "DSA",
+        "Competitive Programming",
+        "Open Source Contribution",
+        "Design Patterns",
+        "Software Architecture"
     ]
   }
   
