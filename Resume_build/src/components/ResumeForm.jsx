@@ -4,29 +4,50 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
+// Helper function to load from localStorage safely
+const loadFromLocalStorage = (key, fallback) => {
+  try {
+    const savedData = localStorage.getItem(key)
+    return savedData ? JSON.parse(savedData) : fallback
+  } catch (error) {
+    console.error('Error loading from localStorage:', error)
+    return fallback
+  }
+}
+
 export default function ResumeForm() {
-  const [formData, setFormData] = useState({
-    personalInfo: { name: '', title: '' },
-    experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
-    projects: [{ title: '', description: '' }],
-    aboutMe: '',
-    academics: [{ degree: '', institution: '', year: '' }],
-    contact: [{ type: '', value: '' }],
-    skills: [''],
-    awards: [{ title: '', organization: '', year: '' }]
-  })
+  const [formData, setFormData] = useState(() => 
+    loadFromLocalStorage('resumeFormData', {
+      personalInfo: { name: '', title: '' },
+      experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
+      projects: [{ title: '', description: '' }],
+      aboutMe: '',
+      academics: [{ degree: '', institution: '', year: '' }],
+      contact: [{ type: '', value: '' }],
+      skills: [''],
+      awards: [{ title: '', organization: '', year: '' }]
+    })
+  )
 
-  // Load form data from localStorage when the component mounts
+  // Save form data to localStorage whenever it changes (with a slight delay to avoid performance issues)
   useEffect(() => {
-    const savedFormData = localStorage.getItem('resumeFormData')
-    if (savedFormData) {
-      setFormData(JSON.parse(savedFormData))
+    const timer = setTimeout(() => {
+      localStorage.setItem('resumeFormData', JSON.stringify(formData))
+    }, 500) // Debounce to save after 500ms
+
+    return () => clearTimeout(timer) // Clean up on unmount or data change
+  }, [formData])
+
+  // Save data before the page unloads to prevent data loss
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.setItem('resumeFormData', JSON.stringify(formData))
     }
-  }, [])
-
-  // Save form data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('resumeFormData', JSON.stringify(formData))
+    
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
   }, [formData])
 
   const handleChange = (section, index, field, value) => {
