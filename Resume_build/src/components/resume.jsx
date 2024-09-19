@@ -1,6 +1,6 @@
 import { Github, Linkedin, Mail, Phone } from 'lucide-react';
-import { Badge } from '../components/ui/badge'; // Adjust the path if necessary
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'; // Adjust the path if necessary
+import { Badge } from '@/components/ui/badge'; // Adjust the path if necessary
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Adjust the path if necessary
 
 export default function Component() {
   return (
