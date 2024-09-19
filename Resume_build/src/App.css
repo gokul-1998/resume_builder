@@ -1,11 +1,12 @@
 /* Base styles */
 #root {
-  max-width: 210mm; /* A4 width in millimeters */
+  max-width: 210mm; /* A4 width in millimeters for print */
   margin: 0 auto;
   padding: 2rem;
-  text-align: left; /* Align text to the left */
-  font-family: Arial, sans-serif; /* Change font if needed */
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  text-align: left;
+  font-family: Arial, sans-serif; /* Common font family */
+  box-sizing: border-box; /* Include padding and border in total width and height */
+  min-height: 100vh; /* Ensure the full height is covered */
 }
 
 /* Container styles */
@@ -28,7 +29,7 @@
 }
 
 .gap-6 {
-  gap: 1.5rem; /* Adjust gap between sections if needed */
+  gap: 1.5rem; /* Adjust gap between sections */
 }
 
 .md\:w-3\/4 {
@@ -64,7 +65,7 @@
 
 /* Contact & Social section */
 .text-primary {
-  color: #007bff; /* Adjust color if needed */
+  color: #007bff; /* Bootstrap primary color */
 }
 
 .hover\:underline:hover {
@@ -105,7 +106,7 @@
   content: '•'; /* Dotted bullet character */
   position: absolute;
   left: 0; /* Align bullet to the left */
-  color: #007bff; /* Adjust color if needed */
+  color: #007bff; /* Bootstrap primary color for bullets */
   font-size: 1.5rem; /* Adjust size if needed */
   line-height: 1; /* Ensure vertical alignment */
   top: 0; /* Align bullet vertically */
@@ -113,18 +114,84 @@
 
 /* Print Styles */
 @media print {
-  .skill-item::before {
-    content: '•'; /* Ensure bullet appears in print */
-    font-size: 1.2rem; /* Adjust size for print */
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevent scrolling */
   }
 
-  /* Ensure consistent styling and layout for print */
+  #root {
+    width: 100%;
+    padding: 1rem;
+    min-height: 100vh; /* Full height of the page */
+  }
+
+  /* Hide browser print headers and footers */
+  header, footer {
+    display: none;
+  }
+
+  /* Hide print button and other non-printable elements */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; /* Prevent content from wrapping to the next line */
+  }
+
+  .md\\:w-3\\/4 {
+    width: 75%;
+    max-width: 75%;
+  }
+
+  .md\\:w-1\\/4 {
+    width: 25%;
+    max-width: 25%;
+  }
+
+  .skill-item::before {
+    content: '•'; /* Ensure bullet appears in print */
+    font-size: 1rem; /* Adjust size for print */
+  }
+
   ul {
-    list-style-type: none; /* Remove default bullets */
+    list-style-type: none; /* Remove default bullets in print */
   }
 
   .skill-item {
     padding-left: 1.5rem; /* Adjust space for bullet in print */
   }
-}
 
+  /* Prevent page breaks inside sections */
+  h1, h2, h3, p, ul, div {
+    page-break-inside: avoid;
+  }
+
+  /* Adjust font sizes for printing */
+  h1 {
+    font-size: 18pt;
+  }
+
+  h2 {
+    font-size: 14pt;
+  }
+
+  p, li {
+    font-size: 10pt;
+  }
+
+  /* Hide unwanted elements like headers and footers */
+  header, footer {
+    display: none;
+  }
+
+  /* Hide the date and time */
+  @page {
+    margin: 0.5in;
+  }
+}
