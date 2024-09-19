@@ -1,12 +1,11 @@
 /* Base styles */
 #root {
-  max-width: 210mm; /* A4 width in millimeters for print */
+  max-width: 210mm; /* A4 width in millimeters */
   margin: 0 auto;
   padding: 2rem;
-  text-align: left;
-  font-family: Arial, sans-serif; /* Common font family */
-  box-sizing: border-box; /* Include padding and border in total width and height */
-  min-height: 100vh; /* Ensure the full height is covered */
+  text-align: left; /* Align text to the left */
+  font-family: Arial, sans-serif; /* Change font if needed */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
 /* Container styles */
@@ -14,22 +13,18 @@
   max-width: 100%;
   margin: 0 auto;
 }
-
 /* Flexbox layout for resume sections */
 .flex {
   display: flex;
 }
-
 .flex-col {
   flex-direction: column;
 }
-
 .flex-row {
   flex-direction: row;
 }
-
 .gap-6 {
-  gap: 1.5rem; /* Adjust gap between sections */
+  gap: 1.5rem; /* Adjust gap between sections if needed */
 }
 
 .md\:w-3\/4 {
@@ -43,7 +38,6 @@
 .space-y-6 {
   margin-bottom: 1.5rem;
 }
-
 /* Card styling - removed */
 .card {
   padding: 0;
@@ -51,11 +45,9 @@
   border-radius: 0;
   margin-bottom: 0; /* Removed margin */
 }
-
 .card-header {
   margin-bottom: 0;
 }
-
 .card-title {
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
@@ -65,13 +57,11 @@
 
 /* Contact & Social section */
 .text-primary {
-  color: #007bff; /* Bootstrap primary color */
+  color: #007bff; /* Adjust color if needed */
 }
-
 .hover\:underline:hover {
   text-decoration: underline;
 }
-
 /* Badge styles */
 .badge {
   display: inline-block;
@@ -81,117 +71,27 @@
   border-radius: 4px;
   font-size: 0.875rem;
 }
-
 /* Icons container styles */
 .icons {
   display: flex;
   justify-content: center; /* Center icons horizontally */
   gap: 1rem; /* Adjust gap between icons if needed */
 }
-
 /* Skills section */
 .skills-list {
   list-style-type: none; /* Remove default list styling */
   padding: 0;
   margin: 0;
 }
-
 .skill-item {
   position: relative;
-  padding-left: 2rem; /* Increased space for the bullet */
-  margin-bottom: 0.5rem; /* Space between items */
+  padding-left: 1.5rem; /* Space for the bullet */
 }
-
 .skill-item::before {
   content: '•'; /* Dotted bullet character */
   position: absolute;
-  left: 0; /* Align bullet to the left */
-  color: #007bff; /* Bootstrap primary color for bullets */
-  font-size: 1.5rem; /* Adjust size if needed */
+  left: 0;
+  color: #007bff; /* Adjust color if needed */
+  font-size: 1.25rem; /* Adjust size if needed */
   line-height: 1; /* Ensure vertical alignment */
-  top: 0; /* Align bullet vertically */
-}
-
-/* Print Styles */
-@media print {
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    box-sizing: border-box;
-    overflow: hidden; /* Prevent scrolling */
-  }
-
-  #root {
-    width: 100%;
-    padding: 1rem;
-    min-height: 100vh; /* Full height of the page */
-  }
-
-  /* Hide browser print headers and footers */
-  header, footer {
-    display: none;
-  }
-
-  /* Hide print button and other non-printable elements */
-  .print\:hidden {
-    display: none !important;
-  }
-
-  .flex {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap; /* Prevent content from wrapping to the next line */
-  }
-
-  .md\\:w-3\\/4 {
-    width: 75%;
-    max-width: 75%;
-  }
-
-  .md\\:w-1\\/4 {
-    width: 25%;
-    max-width: 25%;
-  }
-
-  .skill-item::before {
-    content: '•'; /* Ensure bullet appears in print */
-    font-size: 1rem; /* Adjust size for print */
-  }
-
-  ul {
-    list-style-type: none; /* Remove default bullets in print */
-  }
-
-  .skill-item {
-    padding-left: 1.5rem; /* Adjust space for bullet in print */
-  }
-
-  /* Prevent page breaks inside sections */
-  h1, h2, h3, p, ul, div {
-    page-break-inside: avoid;
-  }
-
-  /* Adjust font sizes for printing */
-  h1 {
-    font-size: 18pt;
-  }
-
-  h2 {
-    font-size: 14pt;
-  }
-
-  p, li {
-    font-size: 10pt;
-  }
-
-  /* Hide unwanted elements like headers and footers */
-  header, footer {
-    display: none;
-  }
-
-  /* Hide the date and time */
-  @page {
-    margin: 0.5in;
-  }
 }
