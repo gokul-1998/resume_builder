@@ -1,7 +1,7 @@
 import { Github, Linkedin, Mail, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge'; // Adjust the path if necessary
 
-export default function Resume() {
+export default function Resume({ resumeData }) {
   const handlePrint = () => {
     window.print();
   };
@@ -12,65 +12,49 @@ export default function Resume() {
         {/* Left side - 75% */}
         <div className="md:w-3/4 space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">John Doe</h1>
-            <p className="text-xl text-gray-900">Full Stack Python and React Engineer</p>
-            {/* About Me */}
+            <h1 className="text-3xl font-bold">{resumeData.personalInfo.name}</h1>
+            <p className="text-xl text-gray-900">{resumeData.personalInfo.title}</p>
             <div>
               <h2 className="font-semibold">About Me</h2>
               <p>
-                I am a dedicated Full Stack Developer with a strong background in both front-end and back-end technologies. My responsive web applications using React, Python, and various tools and frameworks.
+                {resumeData.aboutMe}
               </p>
             </div>
           </div>
           {/* Experience */}
           <div>
             <h2 className="font-semibold">Experience</h2>
-            <div>
-              <h3 className="font-semibold">Senior Full Stack Developer - Tech Solutions Inc.</h3>
-              <p className="text-sm text-gray-900">2020 - Present</p>
-              <ul className="list-disc list-inside mt-2">
-                <li>Developed and maintained large-scale web applications using Python (Django) and React</li>
-                <li>Implemented RESTful APIs and integrated third-party services</li>
-                <li>Led a team of 5 developers and mentored junior team members</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold">Full Stack Developer - Innovative Web Co.</h3>
-              <p className="text-sm text-gray-900">2017 - 2020</p>
-              <ul className="list-disc list-inside mt-2">
-                <li>Built responsive web applications using React and Redux</li>
-                <li>Developed backend services using Python (Flask) and PostgreSQL</li>
-                <li>Collaborated with UX designers to implement intuitive user interfaces</li>
-              </ul>
-            </div>
+            {resumeData.experience.map((exp, index) => (
+              <div key={index}>
+                <h3 className="font-semibold">{exp.title} - {exp.company}</h3>
+                <p className="text-sm text-gray-900">{exp.duration}</p>
+                <ul className="list-disc list-inside mt-2">
+                  {exp.responsibilities.map((resp, i) => (
+                    <li key={i}>{resp}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
           {/* Projects */}
           <div>
             <h2 className="font-semibold">Projects</h2>
-            <div>
-              <h3 className="font-semibold">E-commerce Platform</h3>
-              <p>
-                Developed a full-stack e-commerce platform using Django, React, and PostgreSQL. Implemented features such as user authentication, product catalog, shopping cart, and payment integration.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Task Management Application</h3>
-              <p>
-                Created a responsive task management app using React and Flask. Features include real-time updates, task prioritization, and team collaboration tools.
-              </p>
-            </div>
+            {resumeData.projects.map((project, index) => (
+              <div key={index}>
+                <h3 className="font-semibold">{project.title}</h3>
+                <p>{project.description}</p>
+              </div>
+            ))}
           </div>
           {/* Academics */}
           <div>
             <h2 className="font-semibold">Academics</h2>
-            <div>
-              <h3 className="font-semibold">Master of Science in Computer Science</h3>
-              <p className="text-sm text-gray-900">University of Technology - 2017</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Bachelor of Science in Software Engineering</h3>
-              <p className="text-sm text-gray-900">State University - 2015</p>
-            </div>
+            {resumeData.academics.map((education, index) => (
+              <div key={index}>
+                <h3 className="font-semibold">{education.degree}</h3>
+                <p className="text-sm text-gray-900">{education.institution} - {education.year}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -80,53 +64,44 @@ export default function Resume() {
           <div>
             <h2 className="font-semibold">Contact & Social</h2>
             <div className="space-y-2">
-              <a href="mailto:john.doe@email.com" className="flex items-center gap-2 text-primary hover:underline">
-                <Mail className="w-4 h-4" /> john.doe@email.com
-              </a>
-              <a href="https://linkedin.com/in/johndoe" className="flex items-center gap-2 text-primary hover:underline">
-                <Linkedin className="w-4 h-4" /> LinkedIn
-              </a>
-              <a href="https://github.com/johndoe" className="flex items-center gap-2 text-primary hover:underline">
-                <Github className="w-4 h-4" /> GitHub
-              </a>
+              {resumeData.contact.map((contact, index) => (
+                <a
+                  key={index}
+                  href={
+                    contact.type === "email"
+                      ? `mailto:${contact.value}`
+                      : contact.value
+                  }
+                  className="flex items-center gap-2 text-primary hover:underline"
+                >
+                  {contact.type === "email" && <Mail className="w-4 h-4" />}
+                  {contact.type === "linkedin" && <Linkedin className="w-4 h-4" />}
+                  {contact.type === "github" && <Github className="w-4 h-4" />}
+                  {contact.value}
+                </a>
+              ))}
             </div>
           </div>
           {/* Skills */}
           <div>
             <h2 className="font-semibold">Skills</h2>
             <div className="grid grid-cols-2 gap-2">
-              <ul className="space-y-2">
-                <li className="skill-item text-gray-800">Python</li>
-                <li className="skill-item text-gray-800">Django</li>
-                <li className="skill-item text-gray-800">Flask</li>
-                <li className="skill-item text-gray-800">React</li>
-              </ul>
-              <ul className="space-y-2">
-                <li className="skill-item text-gray-800">Redux</li>
-                <li className="skill-item text-gray-800">JavaScript</li>
-                <li className="skill-item text-gray-800">TypeScript</li>
-                <li className="skill-item text-gray-800">SQL</li>
-              </ul>
+              {resumeData.skills.map((skill, index) => (
+                <li key={index} className="skill-item text-gray-800">{skill}</li>
+              ))}
             </div>
           </div>
+          {/* Awards & Certifications */}
           <div>
             <h2 className="font-semibold">Awards & Certifications</h2>
-            <div className="space-y-2">
-              <div>
-                <h3 className="font-semibold">AWS Certified Developer</h3>
-                <p className="text-sm text-gray-900">2022</p>
+            {resumeData.awards.map((award, index) => (
+              <div key={index}>
+                <h3 className="font-semibold">{award.title}</h3>
+                <p className="text-sm text-gray-900">{award.year}</p>
               </div>
-              <div>
-                <h3 className="font-semibold">Best Team Lead Award</h3>
-                <p className="text-sm text-gray-900">Tech Solutions Inc., 2021</p>
-              </div>
-              <div>
-                <h3 className="font-semibold">Python Developer Certification</h3>
-                <p className="text-sm text-gray-900">Python Institute, 2019</p>
-              </div>
-            </div>
+            ))}
           </div>
-          {/* Print button after Awards & Certifications */}
+          {/* Print button */}
           <div className="mt-4 print:hidden">
             <button
               onClick={handlePrint}

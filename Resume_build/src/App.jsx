@@ -6,12 +6,17 @@ import Resume from './components/resume.jsx';
 import { Github, Linkedin, Mail, Phone } from 'lucide-react'; 
 import ResumeForm from './components/ResumeForm.jsx';
 
+// to import the  data from json file
+import data from './resumeData.json';
+
 function App() {
   const [count, setCount] = useState(0);
+  console.log(data);
+  console.log("Aaaaaaaaaaa");
 
   return (
     <div className="App">
-      {/* <Resume /> Use the Resume component */}
+      <Resume resumeData={data} /> 
       <ResumeForm />
      
       
