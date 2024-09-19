@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,6 +15,19 @@ export default function ResumeForm() {
     skills: [''],
     awards: [{ title: '', organization: '', year: '' }]
   })
+
+  // Load form data from localStorage when the component mounts
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('resumeFormData')
+    if (savedFormData) {
+      setFormData(JSON.parse(savedFormData))
+    }
+  }, [])
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('resumeFormData', JSON.stringify(formData))
+  }, [formData])
 
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
@@ -66,6 +79,7 @@ export default function ResumeForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto p-6">
+      {/* Personal Information */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
         <div className="space-y-4">
@@ -88,6 +102,7 @@ export default function ResumeForm() {
         </div>
       </div>
 
+      {/* Experience */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Experience</h2>
         {formData.experience.map((exp, index) => (
