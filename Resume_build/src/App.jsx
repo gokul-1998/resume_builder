@@ -16,12 +16,7 @@ function App() {
       
       
       
-      <div className="icons">
-        <Github />
-        <Linkedin />
-        <Mail />
-        <Phone />
-      </div>        
+          
     </div>
       
   );
