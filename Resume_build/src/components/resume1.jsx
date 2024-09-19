@@ -83,7 +83,7 @@ export default function Resume({ resumeData }) {
           </section>
         </div>
 
-        {/* Right column for contact, skills, and awards */}
+        {/* Right column for contact, skills, awards, and interests */}
         <div className="col-span-1 flex flex-col">
           <section className="mb-4">
             <h3 className="text-lg font-semibold mb-2">Contact</h3>
@@ -140,6 +140,18 @@ export default function Resume({ resumeData }) {
                   <h4 className="font-medium">{award.title}</h4>
                   <p className="text-sm">{award.organization && `${award.organization} | `}{award.year}</p>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          {/* New Interests Section */}
+          <section className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Interests</h3>
+            <div className="flex flex-wrap gap-2">
+              {resumeData.interests.map((interest, index) => (
+                <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                  {interest}
+                </span>
               ))}
             </div>
           </section>
