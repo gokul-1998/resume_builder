@@ -1,42 +1,111 @@
+/* Base styles */
 #root {
-  max-width: 1280px;
+  max-width: 210mm; /* A4 width in millimeters */
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  text-align: left; /* Align text to the left */
+  font-family: Arial, sans-serif; /* Change font if needed */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Container styles */
+.container {
+  max-width: 100%;
+  margin: 0 auto;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Flexbox layout for resume sections */
+.flex {
+  display: flex;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.flex-col {
+  flex-direction: column;
 }
 
+.flex-row {
+  flex-direction: row;
+}
+
+.gap-6 {
+  gap: 1.5rem; /* Adjust gap between sections if needed */
+}
+
+.md\:w-3\/4 {
+  flex: 3;
+}
+
+.md\:w-1\/4 {
+  flex: 1;
+}
+
+.space-y-6 {
+  margin-bottom: 1.5rem;
+}
+
+/* Card styling - removed */
 .card {
-  padding: 2em;
+  padding: 0;
+  border: none; /* Removed border */
+  border-radius: 0;
+  margin-bottom: 0; /* Removed margin */
 }
 
-.read-the-docs {
-  color: #888;
+.card-header {
+  margin-bottom: 0;
 }
+
+.card-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: left; /* Align heading to the left */
+}
+
+/* Contact & Social section */
+.text-primary {
+  color: #007bff; /* Adjust color if needed */
+}
+
+.hover\:underline:hover {
+  text-decoration: underline;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  padding: 0.5rem;
+  margin: 0.25rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* Icons container styles */
+.icons {
+  display: flex;
+  justify-content: center; /* Center icons horizontally */
+  gap: 1rem; /* Adjust gap between icons if needed */
+}
+/* Skills section */
+.skills-list {
+  list-style-type: none; /* Remove default list styling */
+  padding: 0;
+  margin: 0;
+}
+
+.skill-item {
+  position: relative;
+  padding-left: 1.5rem; /* Space for the bullet */
+}
+
+.skill-item::before {
+  content: '•'; /* Dotted bullet character */
+  position: absolute;
+  left: 0;
+  color: #007bff; /* Adjust color if needed */
+  font-size: 1.25rem; /* Adjust size if needed */
+  line-height: 1; /* Ensure vertical alignment */
+}
+
+
