@@ -46,13 +46,13 @@ export default function Resume({ resumeData }) {
           </header>
 
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">About Me</h3>
+            <h3 className="text-lg font-semibold mb-1">About Me</h3>
             <p className="text-sm">{resumeData.aboutMe}</p>
           </section>
 
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">Experience</h3>
-            <div className="grid gap-2">
+            <h3 className="text-lg font-semibold mb-1">Experience</h3>
+            <div className="grid gap-1">
               {resumeData.experience.map((exp, index) => (
                 <div key={index}>
                   <h4 className="font-semibold text-sm">{exp.title}</h4>
@@ -68,8 +68,8 @@ export default function Resume({ resumeData }) {
           </section>
 
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">Projects</h3>
-            <div className="grid gap-2">
+            <h3 className="text-lg font-semibold mb-1">Projects</h3>
+            <div className="grid gap-1">
               {resumeData.projects.map((project, index) => (
                 <div key={index}>
                   <h4 className="font-semibold text-base">{project.title}</h4>
@@ -81,7 +81,7 @@ export default function Resume({ resumeData }) {
 
           <section className="mb-1">
             <h3 className="text-lg font-semibold mb-1">Education</h3>
-            <div className="grid gap-2">
+            <div className="grid gap-1">
               {resumeData.academics
                 .filter((academic, index, self) =>
                   index === self.findIndex((a) => a.degree === academic.degree && a.year === academic.year)
@@ -99,8 +99,8 @@ export default function Resume({ resumeData }) {
         {/* Right column for contact, skills, awards, and interests */}
         <div className="col-span-1 flex flex-col">
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">Contact</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-lg font-semibold mb-1">Contact</h3>
+            <div className="flex flex-wrap gap-1">
               {resumeData.contact.map((item, index) => (
                 <span key={index} className="text-sm">
                   {item.type}: {item.value}
@@ -110,10 +110,10 @@ export default function Resume({ resumeData }) {
           </section>
 
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">Skills</h3>
-            <div className="mb-2">
+            <h3 className="text-lg font-semibold mb-1">Skills</h3>
+            <div className="mb-1">
               <h4 className="font-medium text-base">Architectures</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1">
                 {resumeData.skills.Architectures.map((skill, index) => (
                   <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
                     {skill}
@@ -122,9 +122,19 @@ export default function Resume({ resumeData }) {
               </div>
             </div>
 
-            <div className="mb-2">
+            <div className="mb-1">
+              <h4 className="font-medium text-base">Cloud</h4>
+              <div className="flex flex-wrap gap-1">
+                {resumeData.skills.cloud.map((language, index) => (
+                  <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-1">
               <h4 className="font-medium text-base">Languages</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1">
                 {resumeData.skills.Languages.map((language, index) => (
                   <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
                     {language}
@@ -133,9 +143,9 @@ export default function Resume({ resumeData }) {
               </div>
             </div>
 
-            <div className="mb-2">
+            <div className="mb-1">
               <h4 className="font-medium text-base">Frameworks</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1">
                 {resumeData.skills.Frameworks.map((framework, index) => (
                   <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
                     {framework}
@@ -143,11 +153,51 @@ export default function Resume({ resumeData }) {
                 ))}
               </div>
             </div>
+            <div className="mb-1">
+              <h4 className="font-medium text-base"> Libraries</h4>
+              <div className="flex flex-wrap gap-1">
+                {resumeData.skills.libraries.map((language, index) => (
+                  <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-1">
+              <h4 className="font-medium text-base"> Database</h4>
+              <div className="flex flex-wrap gap-1">
+                {resumeData.skills.databases.map((language, index) => (
+                  <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-1">
+              <h4 className="font-medium text-base"> Tools</h4>
+              <div className="flex flex-wrap gap-1">
+                {resumeData.skills.tools.map((language, index) => (
+                  <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="mb-1">
+              <h4 className="font-medium text-base"> Tools</h4>
+              <div className="flex flex-wrap gap-1">
+                {resumeData.skills.others.map((language, index) => (
+                  <span key={index} className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
           </section>
 
           <section className="mb-1">
-            <h3 className="text-lg font-semibold mb-2">Awards</h3>
-            <div className="grid gap-2">
+            <h3 className="text-lg font-semibold mb-1">Awards</h3>
+            <div className="grid gap-1">
               {resumeData.awards_and_certifications.map((award, index) => (
                 <div key={index}>
                   <h4 className="font-medium text-base">{award.title}</h4>
@@ -160,7 +210,7 @@ export default function Resume({ resumeData }) {
           {/* New Interests Section */}
           <section id="interests-section" className="mb-1">
             <h3 className="text-sm font-semibold mb-1">Interests</h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1">
               {resumeData.interests.map((interest, index) => (
                 <span key={index} className="text-sm bg-gray-200  rounded" style={{ fontSize: `${interestFontSize}px` }}>
                   {interest}

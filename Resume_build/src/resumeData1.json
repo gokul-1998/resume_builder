@@ -108,10 +108,7 @@
             "HTML",
             "CSS"
           ],
-          "TechStacks":[
-            "MERN",
-            "FARM"
-          ],
+        
           
           "Frameworks": [
             "Django",
@@ -138,33 +135,28 @@
             "Bootstrap",
             "JQuery"
           ],
-          "Tools": [
+          "tools": [
             "Git",
             "Docker",
             "Postman"
           ],
-          "Databases": [
+          "databases": [
             "PostgreSQL",
             "MySQL",
             "SQLite",
             "MongoDB",
             "Redis"
           ],
-          "Cloud": [
+          "cloud": [
             "AWS",
             "Google Cloud",
             "Azure"
           ],
-            "Testing": [
+            "others": [
                 "Unit Testing",
-                "Integration Testing",
-                "End-to-End Testing",
-                "Test-Driven Development (TDD)"
-            ],
-            "DevOps": [
                 "CI/CD",
-                "Docker",
-                "Kubernetes"
+                "Containerization",
+                "Docker"
             ]
 
     },
