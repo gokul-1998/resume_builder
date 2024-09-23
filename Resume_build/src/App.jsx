@@ -8,7 +8,7 @@ import ResumeForm from './components/ResumeForm.jsx';
 import Resume from './components/resume1.jsx';
 
 // to import the  data from json file
-import data from './resumeData1.json';
+import data from './resumeData.json';
 
 function App() {
   const [count, setCount] = useState(0);
