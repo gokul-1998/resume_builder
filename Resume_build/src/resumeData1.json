@@ -1,0 +1,193 @@
+{
+    "personalInfo": {
+      "name": "John Doe",
+      "title": "Full Stack Python and React Engineer"
+    },
+    "experience": [
+      {
+        "title": "Senior Full Stack Developer",
+        "company": "Tech Solutions Inc.",
+        "duration": "2020 - Present",
+        "responsibilities": [
+          "Developed and maintained large-scale web applications using Python (Django) and React",
+          "Implemented RESTful APIs and integrated third-party services",
+          "Led a team of 5 developers and mentored junior team members"
+        ]
+      },
+      {
+        "title": "Senior Full Stack Developer",
+        "company": "Tech Solutions Inc.",
+        "duration": "2020 - Present",
+        "responsibilities": [
+          "Developed and maintained large-scale web applications using Python (Django) and React",
+          "Implemented RESTful APIs and integrated third-party services",
+          "Led a team of 5 developers and mentored junior team members"
+        ]
+      },
+      {
+        "title": "Senior Full Stack Developer",
+        "company": "Tech Solutions Inc.",
+        "duration": "2020 - Present",
+        "responsibilities": [
+          "Developed and maintained large-scale web applications using Python (Django) and React",
+          "Implemented RESTful APIs and integrated third-party services",
+          "Led a team of 5 developers and mentored junior team members"
+        ]
+      },
+      {
+        "title": "Full Stack Developer",
+        "company": "Innovative Web Co.",
+        "duration": "2017 - 2020",
+        "responsibilities": [
+          "Built responsive web applications using React and Redux",
+          "Developed backend services using Python (Flask) and PostgreSQL",
+          "Collaborated with UX designers to implement intuitive user interfaces"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "title": "E-commerce Platform",
+        "description": "Developed a full-stack e-commerce platform using Django, React, and PostgreSQL. Implemented features such as user authentication, product catalog, shopping cart, and payment integration."
+      },
+      {
+        "title": "Task Management Application",
+        "description": "Created a responsive task management app using React and Flask. Features include real-time updates, task prioritization, and team collaboration tools."
+      }
+    ],
+    "aboutMe": "I am a dedicated Full Stack Developer with a strong background in both front-end and back-end technologies. My expertise lies in crafting dynamic and responsive web applications using React, Python, and various modern tools and frameworks. With a passion for building intuitive user interfaces and scalable back-end systems, I bring a holistic approach to software development.",
+    "academics": [
+      {
+        "degree": "Master of Science in Computer Science",
+        "institution": "University of Technology",
+        "year": "2017"
+      },
+      {
+        "degree": "Bachelor of Science in Software Engineering",
+        "institution": "State University",
+        "year": "2015"
+      },
+      {
+        "degree": "Master of Science in Computer Science",
+        "institution": "University of Technology",
+        "year": "2017"
+      },
+      {
+        "degree": "Bachelor of Science in Software Engineering",
+        "institution": "State University",
+        "year": "2015"
+      }
+    ],
+    "contact": [
+      {
+        "type": "email",
+        "value": "john.doe@email.com"
+      },
+      {
+        "type": "linkedin",
+        "value": "https://linkedin.com/in/johndoe"
+      },
+      {
+        "type": "github",
+        "value": "https://github.com/johndoe"
+      }
+    ],
+    "skills":{
+        "Architectures": [
+            "MVC",
+            "RESTful",
+            "Microservices",
+            "Serverless",
+            "Progressive Web Apps",
+            "RBAC"
+          ],
+          "Languages": [
+            "Python",
+            "JavaScript",
+            "SQL",
+            "HTML",
+            "CSS"
+          ],
+        
+          
+          "Frameworks": [
+            "Django",
+            "Flask",
+            "React",
+            "Vue.js",
+            "Express.js",
+            "Bootstrap",
+            "Node.js",
+            "Tailwind CSS"
+          ],
+          "libraries": [
+            "Numpy",
+            "Pandas",
+            "sqlalchemy",
+            "Redis",
+            "Celery",
+            "Shell-Scripting",
+            "Scikit-learn",
+            "Tensorflow",
+            "React",
+            "Redux",
+            "Material-UI",
+            "Bootstrap",
+            "JQuery"
+          ],
+          "tools": [
+            "Git",
+            "Docker",
+            "Postman"
+          ],
+          "databases": [
+            "PostgreSQL",
+            "MySQL",
+            "SQLite",
+            "MongoDB",
+            "Redis"
+          ],
+          "cloud": [
+            "AWS",
+            "Google Cloud",
+            "Azure"
+          ],
+            "others": [
+                "Unit Testing",
+                "CI/CD",
+                "Containerization",
+                "Docker"
+            ]
+
+    },
+    "awards_and_certifications": [
+      {
+        "title": "AWS Certified Developer",
+        "year": "2022"
+      },
+      {
+        "title": "Best Team Lead Award",
+        "organization": "Tech Solutions Inc.",
+        "year": "2021"
+      },
+      {
+        "title": "Python Developer Certification",
+        "organization": "Python Institute",
+        "year": "2019"
+      }
+    ],
+    "interests": [
+        "Machine Learning",
+        "Data Science",
+        "Artificial Intelligence",
+        "Cybersecurity",
+        "Building Scalable Systems",
+        "Problem Solving",
+        "DSA",
+        "Competitive Programming",
+        "Open Source Contribution",
+        "Design Patterns",
+        "Software Architecture"
+    ]
+  }
+  

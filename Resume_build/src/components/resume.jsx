@@ -1,7 +1,7 @@
 import { Github, Linkedin, Mail, Phone } from 'lucide-react';
-import resumeData from '../components/resumeData.json'; // Adjust the path if necessary
+import { Badge } from '@/components/ui/badge'; // Adjust the path if necessary
 
-export default function Resume() {
+export default function Resume({ resumeData }) {
   const handlePrint = () => {
     window.print();
   };
@@ -11,52 +11,48 @@ export default function Resume() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left side - 75% */}
         <div className="md:w-3/4 space-y-6">
-          {/* Personal Info */}
           <div>
-            <h1 className="text-2xl font-bold">{resumeData.personalInfo.name}</h1>
-            <p className="text-lg text-gray-900">{resumeData.personalInfo.title}</p>
+            <h1 className="text-3xl font-bold">{resumeData.personalInfo.name}</h1>
+            <p className="text-xl text-gray-900">{resumeData.personalInfo.title}</p>
+            <div>
+              <h2 className="font-semibold">About Me</h2>
+              <p>
+                {resumeData.aboutMe}
+              </p>
+            </div>
           </div>
-
-          {/* About Me */}
-          <div>
-            <h2 className="font-semibold">About Me</h2>
-            <p>{resumeData.aboutMe}</p>
-          </div>
-
           {/* Experience */}
           <div>
             <h2 className="font-semibold">Experience</h2>
-            {resumeData.experience.map((job, index) => (
+            {resumeData.experience.map((exp, index) => (
               <div key={index}>
-                <h3 className="font-semibold">{job.role} - {job.company}</h3>
-                <p className="text-sm text-gray-900">{job.duration}</p>
-                <ul className="list-disc list-inside ml-4 mt-2">
-                  {job.responsibilities.map((item, idx) => (
-                    <li key={idx}>{item}</li>
+                <h3 className="font-semibold">{exp.title} - {exp.company}</h3>
+                <p className="text-sm text-gray-900">{exp.duration}</p>
+                <ul className="list-disc list-inside mt-2">
+                  {exp.responsibilities.map((resp, i) => (
+                    <li key={i}>{resp}</li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-
           {/* Projects */}
           <div>
             <h2 className="font-semibold">Projects</h2>
             {resumeData.projects.map((project, index) => (
               <div key={index}>
-                <h3 className="font-semibold">{project.name}</h3>
+                <h3 className="font-semibold">{project.title}</h3>
                 <p>{project.description}</p>
               </div>
             ))}
           </div>
-
           {/* Academics */}
           <div>
             <h2 className="font-semibold">Academics</h2>
-            {resumeData.academics.map((degree, index) => (
+            {resumeData.academics.map((education, index) => (
               <div key={index}>
-                <h3 className="font-semibold">{degree.degree}</h3>
-                <p className="text-sm text-gray-900">{degree.institution} - {degree.year}</p>
+                <h3 className="font-semibold">{education.degree}</h3>
+                <p className="text-sm text-gray-900">{education.institution} - {education.year}</p>
               </div>
             ))}
           </div>
@@ -67,43 +63,45 @@ export default function Resume() {
           {/* Contact & Social */}
           <div>
             <h2 className="font-semibold">Contact & Social</h2>
-            <div className="space-y-1">
-              <a href={`mailto:${resumeData.personalInfo.contact.email}`} className="flex items-center gap-2 text-primary hover:underline">
-                <Mail className="w-4 h-4" /> {resumeData.personalInfo.contact.email}
-              </a>
-              <a href={`tel:${resumeData.personalInfo.contact.phone}`} className="flex items-center gap-2 text-primary hover:underline">
-                <Phone className="w-4 h-4" /> {resumeData.personalInfo.contact.phone}
-              </a>
-              <a href={resumeData.personalInfo.contact.github} className="flex items-center gap-2 text-primary hover:underline">
-                <Github className="w-4 h-4" /> GitHub
-              </a>
-              <a href={resumeData.personalInfo.contact.linkedin} className="flex items-center gap-2 text-primary hover:underline">
-                <Linkedin className="w-4 h-4" /> LinkedIn
-              </a>
+            <div className="space-y-2">
+              {resumeData.contact.map((contact, index) => (
+                <a
+                  key={index}
+                  href={
+                    contact.type === "email"
+                      ? `mailto:${contact.value}`
+                      : contact.value
+                  }
+                  className="flex items-center gap-2 text-primary hover:underline"
+                >
+                  {contact.type === "email" && <Mail className="w-4 h-4" />}
+                  {contact.type === "linkedin" && <Linkedin className="w-4 h-4" />}
+                  {contact.type === "github" && <Github className="w-4 h-4" />}
+                  {contact.value}
+                </a>
+              ))}
             </div>
           </div>
-
           {/* Skills */}
           <div>
             <h2 className="font-semibold">Skills</h2>
-            <ul className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {resumeData.skills.map((skill, index) => (
-                <li key={index} className="skill-item text-gray-800">{skill}</li>
+                <li key={index} className="skill-item text-gray-800">
+                  {skill}</li>
               ))}
-            </ul>
+            </div>
           </div>
-
           {/* Awards & Certifications */}
           <div>
             <h2 className="font-semibold">Awards & Certifications</h2>
-            {resumeData.awardsAndCertifications.map((award, index) => (
+            {resumeData.awards.map((award, index) => (
               <div key={index}>
-                <h3 className="font-semibold">{award.name}</h3>
-                <p className="text-sm text-gray-900">{award.issuer ? `${award.issuer}, ` : ''}{award.year}</p>
+                <h3 className="font-semibold">{award.title}</h3>
+                <p className="text-sm text-gray-900">{award.year}</p>
               </div>
             ))}
           </div>
-
           {/* Print button */}
           <div className="mt-4 print:hidden">
             <button
@@ -115,7 +113,6 @@ export default function Resume() {
           </div>
         </div>
       </div>
-
       {/* Print Styles */}
       <style jsx>{`
         @media print {
@@ -125,85 +122,46 @@ export default function Resume() {
             box-sizing: border-box;
             height: auto;
           }
-
+          /* Ensure two-column layout is maintained on print */
           .container {
             width: 100%;
             margin: 0;
             padding: 0;
           }
-
           .flex {
             display: flex;
             flex-direction: row;
-            flex-wrap: wrap;
           }
-
-          .md\\:w-3\\/4 {
+          .md\\:w-3\\/4, .md\\:w-1\\/4 {
             width: 75%;
-          }
-
-          .md\\:w-1\\/4 {
             width: 25%;
           }
-
           /* Prevent page breaks inside sections */
           h1, h2, h3, p, ul, div {
             page-break-inside: avoid;
           }
-
-          /* Adjust font sizes for printing */
+          /* Adjust font sizes and layout for printing */
           h1 {
-            font-size: 20pt;
+            font-size: 24pt;
           }
-
           h2 {
-            font-size: 14pt;
+            font-size: 18pt;
           }
-
           p, li {
-            font-size: 10pt;
+            font-size: 12pt;
           }
-
-          /* Hide print button and unwanted elements */
-          .print\\:hidden {
+          /* Hide print button on print */
+          .print:hidden {
             display: none;
           }
-
-          header, footer, .no-print {
-            display: none !important;
+          /* Fix unwanted headers (like date and time) from showing */
+          @page {
+            margin: 0;
           }
-
-          /* Adjust spacing for print */
-          .space-y-6 > *:not(:first-child) {
-            margin-top: 0.75rem; /* Adjusted for more uniform spacing */
-          }
-
-          .space-y-1 > *:not(:first-child) {
-            margin-top: 0.25rem; /* Adjusted for more uniform spacing */
-          }
-
-          /* Skills list adjustment */
+          /* Ensure skills align properly */
           .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem; /* Adjust gap if needed */
-          }
-
-          /* Prevent icon overflow */
-          .flex .w-4, .flex .h-4 {
-            max-width: 20px;
-            max-height: 20px;
-            overflow: hidden;
-          }
-
-          /* Fix page overflow */
-          .container {
-            overflow: hidden;
-          }
-
-          /* Adjust page margins */
-          @page {
-            margin: 0.5in;
           }
         }
       `}</style>
