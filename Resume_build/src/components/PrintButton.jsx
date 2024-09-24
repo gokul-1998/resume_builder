@@ -6,10 +6,10 @@ const PrintButton = () => {
     };
     
     return (
-        <div className="mt-4 flex justify-center print:hidden">
+        <div className="print:hidden">
             <button
                 onClick={handlePrint}
-                className="sticky top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="fixed top-40 right-20 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 shadow-lg z-50"
             >
                 Print Resume
             </button>
