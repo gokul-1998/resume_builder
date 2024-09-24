@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PrintButton from './PrintButton';
 
 export default function Resume({ resumeData }) {
   const [fontSize, setFontSize] = useState(16);
@@ -230,6 +231,8 @@ export default function Resume({ resumeData }) {
           }
         }
       `}</style>
+            <PrintButton />
+
     </div>
   );
 }
