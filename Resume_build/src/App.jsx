@@ -22,7 +22,6 @@ function App() {
           <ResumeForm />
         </div>
       </div>
-      <PrintButton />
     </div>
   );
 }
