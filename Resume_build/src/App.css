@@ -1,0 +1,8 @@
+/* App.css */
+
+@media print {
+    .hide-on-print {
+      display: none;
+    }
+  }
+  

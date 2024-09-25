@@ -179,7 +179,7 @@ export default function ResumeForm() {
               required
             />
             <Input
-              placeholder="Duration"
+              placeholder="Duration eg : ( Jan 2020 - Jan 2021 )"
               value={exp.duration}
               onChange={(e) => handleChange('experience', index, 'duration', e.target.value)}
               required

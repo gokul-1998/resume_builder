@@ -231,7 +231,6 @@ export default function Resume({ resumeData }) {
           }
         }
       `}</style>
-            <PrintButton />
 
     </div>
   );
