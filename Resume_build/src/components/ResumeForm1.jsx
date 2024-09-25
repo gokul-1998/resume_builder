@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -28,6 +28,19 @@ export default function ResumeForm() {
     awards_and_certifications: [{ title: '', organization: '', year: '' }],
     interests: ['']
   })
+
+  // Load form data from localStorage on component mount
+  useEffect(() => {
+    const savedData = localStorage.getItem('resumeFormData')
+    if (savedData) {
+      setFormData(JSON.parse(savedData))
+    }
+  }, [])
+
+  // Save form data to localStorage whenever formData changes
+  useEffect(() => {
+    localStorage.setItem('resumeFormData', JSON.stringify(formData))
+  }, [formData])
 
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
