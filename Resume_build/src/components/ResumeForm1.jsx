@@ -8,26 +8,29 @@ import { Label } from "@/components/ui/label"
 import { PlusIcon, MinusIcon } from 'lucide-react'
 
 export default function ResumeForm() {
-  const [formData, setFormData] = useState({
-    personalInfo: { name: '', title: '' },
-    experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
-    projects: [{ title: '', description: '' }],
-    aboutMe: '',
-    academics: [{ degree: '', institution: '', year: '' }],
-    contact: [{ type: '', value: '' }],
-    skills: {
-      Architectures: [''],
-      Languages: [''],
-      Frameworks: [''],
-      libraries: [''],
-      tools: [''],
-      databases: [''],
-      cloud: [''],
-      others: ['']
-    },
-    awards_and_certifications: [{ title: '', organization: '', year: '' }],
-    interests: ['']
-  })
+  const [formData, setFormData] = useState(() => {
+    const savedData = localStorage.getItem('resumeFormData');
+    return savedData ? JSON.parse(savedData) : {
+      personalInfo: { name: '', title: '' },
+      experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
+      projects: [{ title: '', description: '' }],
+      aboutMe: '',
+      academics: [{ degree: '', institution: '', year: '' }],
+      contact: [{ type: '', value: '' }],
+      skills: {
+        Architectures: [''],
+        Languages: [''],
+        Frameworks: [''],
+        libraries: [''],
+        tools: [''],
+        databases: [''],
+        cloud: [''],
+        others: ['']
+      },
+      awards_and_certifications: [{ title: '', organization: '', year: '' }],
+      interests: ['']
+    };
+  });
 
   // Load form data from localStorage on component mount
   useEffect(() => {
@@ -39,9 +42,8 @@ export default function ResumeForm() {
 
   // Save form data to localStorage whenever formData changes
   useEffect(() => {
-    localStorage.setItem('resumeFormData', JSON.stringify(formData))
-  }, [formData])
-
+    localStorage.setItem('resumeFormData', JSON.stringify(formData));
+  }, [formData]);
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
       if (Array.isArray(prevData[section])) {
