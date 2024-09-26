@@ -86,6 +86,8 @@ export default function Resume({ resumeData }) {
               {resumeData.academics
                 .filter((academic, index, self) =>
                   index === self.findIndex((a) => a.degree === academic.degree && a.year === academic.year)
+                //This line is checking if the current academic entry is the first occurrence of that specific combination of degree and year in the array. It helps remove duplicates by ensuring only unique combinations of degree and year are considered.//
+
                 )
                 .map((academic, index) => (
                   <div key={index}>
@@ -96,6 +98,7 @@ export default function Resume({ resumeData }) {
             </div>
           </section>
         </div>
+
 
         {/* Right column for contact, skills, awards, and interests */}
         <div className="col-span-1 flex flex-col">
@@ -203,6 +206,8 @@ export default function Resume({ resumeData }) {
                 <div key={index}>
                   <h4 className="font-medium text-base">{award.title}</h4>
                   <p className="text-sm">{award.organization && `${award.organization} | `}{award.year}</p>
+                  {/* //{award.organization && ${award.organization} | }: Checks if award.organization exists. If it does, it displays the organization name followed by a vertical bar (|). */}
+
                 </div>
               ))}
             </div>
@@ -217,6 +222,7 @@ export default function Resume({ resumeData }) {
                   {interest}
                 </span>
               ))}
+              {/* Doubt */}
             </div>
           </section>
         </div>
@@ -231,7 +237,6 @@ export default function Resume({ resumeData }) {
           }
         }
       `}</style>
-            <PrintButton />
 
     </div>
   );
