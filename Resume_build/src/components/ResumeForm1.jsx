@@ -386,6 +386,8 @@ export default function ResumeForm() {
   </div>
 ))}
 
+ {/* doubt */}
+
         </CollapsibleContent>
       </Collapsible>
 
@@ -454,3 +456,4 @@ export default function ResumeForm() {
     </form>
   )
 }
+

@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge'; // Adjust the path if necessary
 export default function Resume({ resumeData }) {
   const handlePrint = () => {
     window.print();
+
+
   };
 
   return (
@@ -17,7 +19,7 @@ export default function Resume({ resumeData }) {
             <div>
               <h2 className="font-semibold">About Me</h2>
               <p>
-                {resumeData.aboutMe}
+                {resumeData.aboutMe} 
               </p>
             </div>
           </div>
@@ -168,3 +170,5 @@ export default function Resume({ resumeData }) {
     </div>
   );
 }
+
+
