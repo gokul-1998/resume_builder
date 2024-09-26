@@ -36,6 +36,7 @@ export default function ResumeForm() {
       interests: ['']
     };
   });
+  
 
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
@@ -363,27 +364,28 @@ export default function ResumeForm() {
           {openSections.skills ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {Object.entries(formData.skills).map(([category, skills]) => (
-            <div key={category} className="space-y-2">
-              <h3 className="font-medium">{category}</h3>
-              {skills.map((skill, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Input
-                    placeholder={`${category} skill`}
-                    value={skill}
-                    onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                    required
-                  />
-                  <Button type="button" onClick={() => removeSkill(category, index)} variant="destructive" size="icon">
-                    <MinusIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button type="button" onClick={() => addSkill(category)} variant="outline" size="sm">
-                Add {category} Skill
-              </Button>
-            </div>
-          ))}
+        {Object.entries(formData.skills).map(([category, skills]) => (
+  <div key={category} className="space-y-2">
+    <h3 className="font-medium">{category}</h3>
+    {Array.isArray(skills) && skills.map((skill, index) => (
+      <div key={index} className="flex items-center space-x-2">
+        <Input
+          placeholder={`${category} skill`}
+          value={skill}
+          onChange={(e) => handleSkillChange(category, index, e.target.value)}
+          required
+        />
+        <Button type="button" onClick={() => removeSkill(category, index)} variant="destructive" size="icon">
+          <MinusIcon className="h-4 w-4" />
+        </Button>
+      </div>
+    ))}
+    <Button type="button" onClick={() => addSkill(category)} variant="outline" size="sm">
+      Add {category} Skill
+    </Button>
+  </div>
+))}
+
         </CollapsibleContent>
       </Collapsible>
 
@@ -393,7 +395,7 @@ export default function ResumeForm() {
           {openSections.awards_and_certifications ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {formData.awards_and_certifications.map((award, index) => (
+          {Array.isArray(formData.awards_and_certifications) && formData.awards_and_certifications.map((award, index) => (
             <div key={index} className="space-y-2 p-4 bg-white rounded-md">
               <Input
                 placeholder="Title"
@@ -429,7 +431,7 @@ export default function ResumeForm() {
           {openSections.interests ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {formData.interests.map((interest, index) => (
+          {Array.isArray(formData.interests) && formData.interests.map((interest, index) => (
             <div key={index} className="flex items-center space-x-2">
               <Input
                 placeholder="Interest"
