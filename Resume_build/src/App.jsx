@@ -4,8 +4,8 @@ import './App.css'; // If you still need this for other styles
 import ResumeForm from './components/ResumeForm1.jsx';
 import Resume from './components/resume1.jsx';
 import PrintButton from './components/PrintButton.jsx';
-import Home from './components/Pages/Home'; // Import Home component
 import data from './resumeData1.json';
+import Home from './Pages/Home.jsx';
 
 function App() {
   const [count, setCount] = useState(0);
