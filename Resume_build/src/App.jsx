@@ -7,6 +7,9 @@ import PrintButton from './components/PrintButton.jsx';
 import data from './resumeData1.json';
 import Home from './Pages/Home.jsx';
 import SignUpPage from './Pages/signup.jsx'; // Import your SignUpPage
+import LoginPage from './Pages/loginPage.jsx';
+import NotFoundPage from './components/NotFoundPage.jsx'; // Import the 404 Page
+import Dashboard from './components/dashboard.jsx';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -21,7 +24,12 @@ function App() {
           
           {/* Sign Up page route */}
           <Route path="/signup" element={<SignUpPage />} />
+          
+          {/* Login page route */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
+          
           {/* Resume builder route */}
           <Route 
             path="/builder" 
@@ -39,6 +47,9 @@ function App() {
               </div>
             } 
           />
+          
+          {/* 404 Not Found page route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </Router>
