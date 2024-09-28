@@ -6,6 +6,7 @@ import Resume from './components/resume1.jsx';
 import PrintButton from './components/PrintButton.jsx';
 import data from './resumeData1.json';
 import Home from './Pages/Home.jsx';
+import SignUpPage from './Pages/signup.jsx'; // Import your SignUpPage
 
 function App() {
   const [count, setCount] = useState(0);
@@ -18,6 +19,9 @@ function App() {
           {/* Home page route */}
           <Route path="/" element={<Home />} />
           
+          {/* Sign Up page route */}
+          <Route path="/signup" element={<SignUpPage />} />
+
           {/* Resume builder route */}
           <Route 
             path="/builder" 
