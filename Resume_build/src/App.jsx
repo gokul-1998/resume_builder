@@ -5,53 +5,35 @@ import ResumeForm from './components/ResumeForm1.jsx';
 import Resume from './components/resume1.jsx';
 import PrintButton from './components/PrintButton.jsx';
 import data from './resumeData1.json';
-import Home from './Pages/Home.jsx';
+import Home from './Pages/Home.jsx'; // Import Home component
 import SignUpPage from './Pages/signup.jsx'; // Import your SignUpPage
 import LoginPage from './Pages/loginPage.jsx';
 import NotFoundPage from './components/NotFoundPage.jsx'; // Import the 404 Page
 import Dashboard from './components/dashboard.jsx';
+import Navbar from './components/NavBar.jsx';
 
 function App() {
-  const [count, setCount] = useState(0);
-  const storedData = JSON.parse(localStorage.getItem("resumeFormData"));
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (userData) => {
+    setUser(userData); // Store user data upon login
+  };
+
+  const handleLogout = () => {
+    setUser(null); // Clear user data on logout
+    localStorage.removeItem('token'); // Remove token from localStorage
+  };
 
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          {/* Home page route */}
-          <Route path="/" element={<Home />} />
-          
-          {/* Sign Up page route */}
-          <Route path="/signup" element={<SignUpPage />} />
-          
-          {/* Login page route */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-
-          
-          {/* Resume builder route */}
-          <Route 
-            path="/builder" 
-            element={
-              <div className="flex flex-row h-screen">
-                {/* Resume on the left */}
-                <div className="w-1/2 bg-gray-100 p-4">
-                  <Resume resumeData={storedData || data} />
-                </div>
-
-                {/* Form on the right, hidden during print */}
-                <div className="w-1/2 bg-white p-4 hide-on-print">
-                  <ResumeForm />
-                </div>
-              </div>
-            } 
-          />
-          
-          {/* 404 Not Found page route */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
+      <Navbar user={user} onLogout={handleLogout} /> {/* Pass user and logout function to Navbar */}
+      <Routes>
+        <Route path="/" element={<Home />} /> {/* Add Home Route */}
+        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/signup" element={<SignUpPage />} /> {/* Add SignUp Route */}
+        <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <LoginPage onLogin={handleLogin} />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </Router>
   );
 }

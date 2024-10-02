@@ -1,17 +1,18 @@
+// LoginPage.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate(); // Use useNavigate for redirection in React Router
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,17 +35,17 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        // Store the token in localStorage or a secure cookie
-        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('token', data.access_token); // Store token in localStorage
+        onLogin({ email }); // Call onLogin with user data
         navigate('/dashboard'); // Redirect to dashboard
       } else {
-        setError('Invalid email or password');
+        setError('Invalid email or password'); // Error for invalid login
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('An error occurred. Please try again.'); // General error
+    } finally {
+      setIsLoading(false); // Stop loading regardless of success or failure
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -90,9 +91,9 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <a href="/signup" className="text-blue-600 hover:underline">
+            <Link to="/signup" className="text-blue-600 hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>

@@ -16,7 +16,7 @@ const NotFoundPage = () => {
         <p className="text-lg text-gray-600 mb-6">
           The page you're looking for might have been moved or deleted.
         </p>
-        <Link to="/" className="inline-block px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold rounded-full shadow-lg hover:bg-gradient-to-l hover:from-blue-500 hover:to-green-400 transition duration-300 transform hover:scale-105">
+        <Link to="/" className="mt-4 px-8 py-3 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white font-semibold rounded-full shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl hover:bg-gradient-to-r hover:from-purple-600 hover:to-green-400 duration-300">
           Go Back to Home
         </Link>
       </div>
