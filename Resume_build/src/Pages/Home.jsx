@@ -1,25 +1,39 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   return (
-    <section className="home-section bg-gray-100 py-12">
-      <div className="intro-container max-w-4xl mx-auto text-center px-6">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6">
-          Welcome to the Resume Builder
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 relative">
+      <div className="relative z-10 text-center p-10 bg-white rounded-lg shadow-lg animate-slow-zoom">
+        {/* Welcome Box */}
+        <h1 className="text-5xl font-extrabold text-gray-800 mb-6">
+          Welcome to the <span className="text-teal-500">Resume Builder</span>
         </h1>
-        <p className="text-lg text-gray-600 mb-4">
-          The Resume Builder is a user-friendly web application designed to help individuals create
-          professional resumes effortlessly. Built using React for the frontend and FastAPI for the backend,
-          this project enables users to register, log in, and build customized resumes by filling out
-          relevant details such as personal information, work experience, education, and skills. With an intuitive
-          interface and the ability to save and manage multiple resumes, it simplifies the process of creating
-          polished, job-ready documents in minutes.
+
+        {/* Description */}
+        <p className="text-xl text-gray-700 mb-4 leading-relaxed">
+          Effortlessly create a professional resume with our intuitive web application, built with 
+          <span className="font-semibold text-teal-500"> React </span> and 
+          <span className="font-semibold text-teal-500"> FastAPI</span>. Showcase your skills, experience, and achievements in just a few clicks.
         </p>
-        <p className="text-lg text-gray-600">
-          Explore the features, craft your resume, and get a professional document that highlights your skills and achievements!
+
+        <p className="text-xl text-gray-700 mb-4 leading-relaxed">
+          Build, save, and manage multiple resumes tailored to your career goals. Experience the simplicity of creating standout documents.
         </p>
+
+        <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+          Let's get started on your journey to success!
+        </p>
+
+        {/* Call-to-Action Button */}
+        <Link to="/login" className="inline-block px-8 py-4 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 transition duration-300 transform hover:scale-105">
+          Build Your Resume Now
+        </Link>
       </div>
-    </section>
+
+      {/* Decorative Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-teal-400 to-blue-500 opacity-40"></div>
+    </div>
   );
 };
 
