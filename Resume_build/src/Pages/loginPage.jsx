@@ -1,50 +1,34 @@
 // LoginPage.jsx
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; 
+import { useEffect, useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom'; 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../features/auth/authSlice';
 
 export default function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { status, error, isAuthenticated } = useSelector((state) => state.auth);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    // Basic validation
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      setIsLoading(false);
-      return;
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
     }
+  }, [isAuthenticated, navigate]);
 
-    try {
-      const response = await fetch('http://127.0.0.1:8000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.access_token); // Store token in localStorage
-        onLogin({ email }); // Call onLogin with user data
-        navigate('/dashboard'); // Redirect to dashboard
-      } else {
-        setError('Invalid email or password'); // Error for invalid login
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.'); // General error
-    } finally {
-      setIsLoading(false); // Stop loading regardless of success or failure
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const resultAction = await dispatch(loginUser({ email, password }));
+    if (loginUser.fulfilled.match(resultAction)) {
+      navigate('/');
     }
   };
 

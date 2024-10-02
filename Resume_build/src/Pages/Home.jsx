@@ -1,40 +1,91 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
+import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
-const Home = () => {
+export default function HomePage() {
+  const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (token) {
+      fetchEmployees();
+    } else {
+      navigate('/login');
+    }
+  }, [token, navigate]);
+
+  const fetchEmployees = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Unauthorized: Please log in again');
+        }
+        throw new Error('Failed to fetch employees');
+      }
+      const data = await response.json();
+      setEmployees(data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch employees",
+        variant: "destructive",
+      });
+      if (error.message === 'Unauthorized: Please log in again') {
+        handleLogout();
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 relative">
-      <div className="relative z-10 text-center p-10 bg-white rounded-lg shadow-lg animate-slow-zoom">
-        {/* Welcome Box */}
-        <h1 className="text-5xl font-extrabold text-gray-800 mb-6">
-          Welcome to the <span className="text-teal-500">Resume Builder</span>
-        </h1>
-
-        {/* Description */}
-        <p className="text-xl text-gray-700 mb-4 leading-relaxed">
-          Effortlessly create a professional resume with our intuitive web application, built with 
-          <span className="font-semibold text-teal-500"> React </span> and 
-          <span className="font-semibold text-teal-500"> FastAPI</span>. Showcase your skills, experience, and achievements in just a few clicks.
-        </p>
-
-        <p className="text-xl text-gray-700 mb-4 leading-relaxed">
-          Build, save, and manage multiple resumes tailored to your career goals. Experience the simplicity of creating standout documents.
-        </p>
-
-        <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-          Let's get started on your journey to success!
-        </p>
-
-        {/* Call-to-Action Button */}
-        <Link to="/login" className="inline-block px-8 py-4 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 transition duration-300 transform hover:scale-105">
-          Build Your Resume Now
-        </Link>
+    <div className="container mx-auto mt-10 p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Welcome to the Home Page</h1>
+        <div>
+          {user && <p className="mb-2">Logged in as: {user.email}</p>}
+          <Button onClick={handleLogout}>Logout</Button>
+        </div>
       </div>
 
-      {/* Decorative Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-teal-400 to-blue-500 opacity-40"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {employees.map((employee) => (
+          <Card key={employee.id}>
+            <CardHeader>
+              <CardTitle>{employee.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Email: {employee.email}</p>
+              <p>Resumes: {employee.resumes.length}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
-};
-
-export default Home;
+}
