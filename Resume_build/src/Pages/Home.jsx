@@ -67,10 +67,7 @@ export default function HomePage() {
     <div className="container mx-auto mt-10 p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Welcome to the Home Page</h1>
-        <div>
-          {user && <p className="mb-2">Logged in as: {user.email}</p>}
-          <Button onClick={handleLogout}>Logout</Button>
-        </div>
+      
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

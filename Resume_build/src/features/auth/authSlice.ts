@@ -18,8 +18,8 @@ export const loginUser = createAsyncThunk(
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-      localStorage.setItem('user', JSON.stringify({ email }));
-      return { token: data.access_token, user: { email } };
+      localStorage.setItem('user',  data.username);
+      return { token: data.access_token, user: data.username };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -41,7 +41,7 @@ export const checkAuth = createAsyncThunk(
 );
 
 interface AuthState {
-  user: null | { email: string };
+  user: null | string ;
   token: string | null;
   isAuthenticated: boolean;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -49,7 +49,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  user: localStorage.getItem('user'),
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
   status: 'idle',

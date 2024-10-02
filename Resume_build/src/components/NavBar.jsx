@@ -11,6 +11,7 @@ const Navbar = () => {
     dispatch(logout()); // Dispatch the logout action
     navigate('/login'); // Redirect to login page
   };
+  console.log(user,"aaaaaaaaaaa");
 
   return (
     <nav className="bg-blue-600 p-4">
@@ -21,7 +22,7 @@ const Navbar = () => {
         <div>
           {user ? (
             <>
-              <span className="text-white mr-4">Welcome, {user.email}</span>
+              <span className="text-white mr-4">Welcome, {user}</span>
               <button
                 onClick={handleLogout} // Correctly call handleLogout here
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
