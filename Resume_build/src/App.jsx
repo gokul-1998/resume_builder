@@ -32,7 +32,16 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} /> 
-        <Route path="/:username" element={<Profile />} /> {/* Dynamic profile route */}
+        
+
+        <Route path="/:username" element={
+          <PrivateRoute>
+
+            <Profile />
+          </PrivateRoute>
+          } /> {/* Dynamic profile route */}
+        
+
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> {/* Protect dashboard route */}
 
         {/* Protect Home route */}
