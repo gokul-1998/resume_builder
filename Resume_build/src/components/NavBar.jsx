@@ -3,28 +3,33 @@ import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../features/auth/authSlice';
 
 const Navbar = () => {
-  const dispatch = useDispatch(); // useDispatch must be called inside the component
-  const navigate = useNavigate(); // useNavigate should also be inside the component
-  const { user } = useSelector((state) => state.auth); // Get user state from Redux
+  const dispatch = useDispatch(); 
+  const navigate = useNavigate(); 
+  const { user } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
-    navigate('/login'); // Redirect to login page
+    dispatch(logout());
+    navigate('/login');
   };
-  console.log(user,"aaaaaaaaaaa");
 
   return (
     <nav className="bg-blue-600 p-4">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-white text-xl font-bold">
-          <Link to="/" className="hover:underline">Resume Builder</Link> {/* Link to Home page */}
+          <Link to="/" className="hover:underline">Resume Builder</Link>
         </h1>
         <div>
           {user ? (
             <>
-              <span className="text-white mr-4">Welcome, {user}</span>
+              {/* Make username clickable, directing to `/username` */}
+              <Link 
+                to={`/${user}`} // Dynamic URL based on username
+                className="text-white mr-4 hover:underline"
+              >
+                Welcome, {user}
+              </Link>
               <button
-                onClick={handleLogout} // Correctly call handleLogout here
+                onClick={handleLogout}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
                 Logout
