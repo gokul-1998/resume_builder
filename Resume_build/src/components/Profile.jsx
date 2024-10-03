@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, useLocation } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
+import ResumeForm from "./ResumeForm1";
 
 const Profile = () => {
   const { username } = useParams();
@@ -120,6 +121,7 @@ const Profile = () => {
           {/* Add other user details here */}
         </div>
       </div>
+      <ResumeForm/>
     </>
   );
 };
