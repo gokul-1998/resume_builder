@@ -25,7 +25,7 @@ export default function HomePage() {
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/users', {
+      const response = await fetch(`${import.meta.env.VITE_AUTH_BACKEND_URL}` + '/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

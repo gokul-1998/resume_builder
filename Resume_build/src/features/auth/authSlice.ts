@@ -1,10 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+
+
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/login', {
+      const response = await fetch(`${import.meta.env.VITE_AUTH_BACKEND_URL}` + '/login', {
         method: 'POST',
         headers: {                    
           'Content-Type': 'application/json',
