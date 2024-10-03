@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../features/auth/authSlice';
+import { useEffect } from 'react';
 
 const Navbar = () => {
   const dispatch = useDispatch(); 
@@ -11,6 +12,22 @@ const Navbar = () => {
     dispatch(logout());
     navigate('/login');
   };
+
+  useEffect(() => {
+    console.log("sending request to backend");
+    const back_url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` + "/test";
+    fetch(`${back_url}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("backend is active");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <nav className="bg-blue-600 p-4">
