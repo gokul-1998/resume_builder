@@ -30,7 +30,7 @@ export const checkAuth = createAsyncThunk(
   'auth/check',
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const user = localStorage.getItem('user') || 'null';
 
     if (token && user) {
       return { token, user };
