@@ -12,11 +12,9 @@ import NotFoundPage from './components/NotFoundPage.jsx'; // 404 Page
 import Dashboard from './components/dashboard.jsx'; // Dashboard component
 import Navbar from './components/NavBar.jsx'; // Navbar component
 import Profile from './components/Profile'; // Profile component
+import PrivateRoute from './components/PrivateRoute.jsx';
 
-function PrivateRoute({ children }) {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
+
 
 function AppContent() {
   const dispatch = useDispatch();
@@ -32,20 +30,17 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} /> 
+        <Route element={<PrivateRoute />}>
+
+        <Route path="/dashboard" element={<Dashboard />} /> {/* Protect dashboard route */}
+        <Route path="/" element={<Home />} />
+        <Route path="/:username" element={ <Profile />} /> 
+        </Route>
+
         
 
-        <Route path="/:username" element={
-          <PrivateRoute>
-
-            <Profile />
-          </PrivateRoute>
-          } /> {/* Dynamic profile route */}
-        
-
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> {/* Protect dashboard route */}
 
         {/* Protect Home route */}
-        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
 
         {/* Catch all other routes - 404 Page */}
         <Route path="*" element={<NotFoundPage />} />
