@@ -149,11 +149,36 @@ export default function ResumeForm() {
     }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(formData)
-    // Here you would typically send the data to a server or perform further processing
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("qqqqqqqqqqqqqq")
+    location=window.location.href;
+    // to get the first part after domain
+    const username=location.split("/")[3];
+    
+    try {
+      const response = await fetch('http://localhost:8000/users/'+username, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Success:', result);
+        alert('Form submitted successfully');
+      } else {
+        console.error('Error:', response.statusText);
+        alert('Error submitting form');
+      }
+    } catch (error) {
+      console.error('Request failed:', error);
+      alert('Failed to submit form');
+    }
+  };
+  
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }))
