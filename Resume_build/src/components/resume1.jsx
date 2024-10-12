@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import PrintButton from './PrintButton';
+import { json } from 'react-router-dom';
 
 export default function Resume({ resumeData }) {
   const [fontSize, setFontSize] = useState(16);
   const [interestFontSize, setInterestFontSize] = useState(14); // Font size for interests
-
+  console.log("resumeData", resumeData);
+  
+  
   useEffect(() => {
     const adjustFontSize = () => {
       const content = document.getElementById('resume-content');

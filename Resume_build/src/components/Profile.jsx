@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams, useLocation } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import ResumeForm from "./ResumeForm1";
+import Resume from "./resume1";
 
 const Profile = () => {
   const { username } = useParams();
@@ -11,9 +12,21 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000"; // API base URL
+  const [resumeData, setResumeData] = useState(null);
 
   const queryParams = new URLSearchParams(location.search);
   const tab = queryParams.get("tab");
+  
+  useEffect(() => {
+    if (user?.profile) {
+      try {
+        const parsedProfile = JSON.parse(user.profile);  // Parse the profile JSON
+        setResumeData(parsedProfile.profile);
+      } catch (error) {
+        console.error("Error parsing JSON profile", error);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     fetch(`${url}/users/${username}`)
@@ -37,6 +50,7 @@ const Profile = () => {
         setLoading(false);
       });
   }, [username]);
+  
 
   // Get current user from Redux store
   const userFromRedux = useSelector((state) => state.user);
@@ -122,6 +136,8 @@ const Profile = () => {
         </div>
       </div>
       <ResumeForm/>
+      dad
+      <Resume resumeData={resumeData}/>
     </>
   );
 };
