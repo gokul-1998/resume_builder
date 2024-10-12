@@ -1,6 +1,5 @@
-"use client"
-
 import { useState } from "react"
+import { useNavigate } from "react-router-dom" // Import useNavigate
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +14,7 @@ export default function SignUpPage() {
   })
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const navigate = useNavigate() // Initialize useNavigate
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -39,7 +39,10 @@ export default function SignUpPage() {
       }
 
       setSuccess(true)
-      setFormData({ name: "", email: "",  password: "" })
+      setFormData({ name: "", email: "", password: "" })
+
+      // Redirect to login page after successful signup
+      setTimeout(() => navigate("/login"), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred")
     }
@@ -84,7 +87,7 @@ export default function SignUpPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="password" className="sr-only">
                 Password
