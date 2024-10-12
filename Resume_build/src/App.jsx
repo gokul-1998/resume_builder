@@ -14,6 +14,7 @@ import Navbar from './components/NavBar.jsx'; // Navbar component
 import Profile from './components/Profile'; // Profile component
 import PrivateRoute from './components/PrivateRoute.jsx';
 import NewResume from './components/NewResume.jsx';
+import NewAIResume from './components/NewAIResume.jsx';
 
 
 
@@ -34,6 +35,7 @@ function AppContent() {
 
         <Route element={<PrivateRoute />}>
         <Route path='/createResume' element={<NewResume />} />
+        <Route path='/createAiResume' element={<NewAIResume />} />
         <Route path="/dashboard" element={<Dashboard />} /> {/* Protect dashboard route */}
         <Route path="/" element={<Home />} />
         <Route path="/:username" element={ <Profile />} /> 
