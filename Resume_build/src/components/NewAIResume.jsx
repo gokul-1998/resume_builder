@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Resume from './resume1'
-import ResumeForm from './ResumeForm1'
+import ResumeForm from './ResumeForm2'
 import PrintButton from './PrintButton'
 
 export default function NewAIResume() {

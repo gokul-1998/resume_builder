@@ -1,6 +1,6 @@
 import React from 'react'
 import Resume from './resume1'
-import ResumeForm from './ResumeForm1'
+import ResumeForm from './ResumeForm2'
 import PrintButton from './PrintButton';
 
 const NewResume = () => {

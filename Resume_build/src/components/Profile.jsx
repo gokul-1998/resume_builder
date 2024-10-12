@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, useLocation } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
-import ResumeForm from "./ResumeForm1";
+import ResumeForm from "./ResumeForm2";
 import Resume from "./resume1";
 
 const Profile = () => {
@@ -22,6 +22,7 @@ const Profile = () => {
       try {
         const parsedProfile = JSON.parse(user.profile);  // Parse the profile JSON
         setResumeData(parsedProfile.profile);
+        localStorage.setItem("resumeData", JSON.stringify(parsedProfile.profile));
       } catch (error) {
         console.error("Error parsing JSON profile", error);
       }
@@ -135,8 +136,7 @@ const Profile = () => {
           {/* Add other user details here */}
         </div>
       </div>
-      <ResumeForm/>
-      dad
+      <ResumeForm />
       <Resume resumeData={resumeData}/>
     </>
   );

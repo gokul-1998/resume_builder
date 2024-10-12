@@ -40,13 +40,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/:username" element={ <Profile />} /> 
         </Route>
-
         
-
-
-        {/* Protect Home route */}
-
-        {/* Catch all other routes - 404 Page */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
