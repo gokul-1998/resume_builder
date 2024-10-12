@@ -6,7 +6,9 @@ import { useEffect } from 'react';
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  console.log('aaaaaaa')
   const { user } = useSelector((state) => state.auth);
+  console.log(user);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -40,10 +42,10 @@ const Navbar = () => {
             <>
               {/* Use user.name or user.email based on what's available */}
               <Link
-                to={`/${user.name || user.email}`} // Dynamic URL based on username or email
+                to={`/${user.username || user.email}`} // Dynamic URL based on username or email
                 className="text-white mr-4 hover:underline"
               >
-                Welcome, {user.name || user.email} {/* Display user name or email */}
+                Welcome, {user.username || user.email} {/* Display user name or email */}
               </Link>
               <button
                 onClick={handleLogout}
