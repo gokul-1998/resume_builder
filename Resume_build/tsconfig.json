@@ -4,6 +4,7 @@
     ],
     "compilerOptions": {
       "baseUrl": ".",
+      "module": "es2020",
       "paths": {
         "@/*": ["./src/*"]
       }
