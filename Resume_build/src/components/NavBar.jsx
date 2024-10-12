@@ -4,8 +4,8 @@ import { logout } from '../features/auth/authSlice';
 import { useEffect } from 'react';
 
 const Navbar = () => {
-  const dispatch = useDispatch(); 
-  const navigate = useNavigate(); 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
@@ -38,12 +38,12 @@ const Navbar = () => {
         <div>
           {user ? (
             <>
-              {/* Make username clickable, directing to `/username` */}
-              <Link 
-                to={`/${user}`} // Dynamic URL based on username
+              {/* Use user.name or user.email based on what's available */}
+              <Link
+                to={`/${user.name || user.email}`} // Dynamic URL based on username or email
                 className="text-white mr-4 hover:underline"
               >
-                Welcome, {user}
+                Welcome, {user.name || user.email} {/* Display user name or email */}
               </Link>
               <button
                 onClick={handleLogout}

@@ -29,16 +29,21 @@ export const loginUser = createAsyncThunk(
 export const checkAuth = createAsyncThunk(
   'auth/check',
   async (_, { rejectWithValue }) => {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    try {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
 
-    if (token && user) {
-      return { token, user };
+      if (token && user) {
+        return { token, user };
+      }
+
+      return rejectWithValue('No token found');
+    } catch (error) {
+      return rejectWithValue(error.message || 'An error occurred while checking authentication');
     }
-
-    return rejectWithValue('No token found');
   }
 );
+
 
 interface AuthState {
   user: null | { email: string };
@@ -49,6 +54,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
+  
   user: JSON.parse(localStorage.getItem('user') || 'null'),
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
