@@ -1,5 +1,5 @@
 {
-  "name": "resume-build",
+  "name": "employee_attendance",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,16 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-collapsible": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
     "@reduxjs/toolkit": "^2.2.7",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "lottie-react": "^2.4.0",
-    "lucide-react": "^0.441.0",
+    "lucide-react": "^0.446.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.1.2",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
-    "@types/node": "^22.5.5",
+    "@types/node": "^22.7.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -40,7 +40,7 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.12",
+    "tailwindcss": "^3.4.13",
     "vite": "^5.4.1"
   }
 }

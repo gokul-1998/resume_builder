@@ -1,14 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-
-
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_AUTH_BACKEND_URL}` + '/login', {
+      const response = await fetch('http://127.0.0.1:8000/login', {
         method: 'POST',
-        headers: {                    
+        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
@@ -20,8 +18,8 @@ export const loginUser = createAsyncThunk(
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token);
-      localStorage.setItem('user',  data.username);
-      return { token: data.access_token, user: data.username };
+      localStorage.setItem('user', JSON.stringify({ email }));
+      return { token: data.access_token, user: { email } };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -32,7 +30,7 @@ export const checkAuth = createAsyncThunk(
   'auth/check',
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user') || 'null';
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
 
     if (token && user) {
       return { token, user };
@@ -43,7 +41,7 @@ export const checkAuth = createAsyncThunk(
 );
 
 interface AuthState {
-  user: null | string ;
+  user: null | { email: string };
   token: string | null;
   isAuthenticated: boolean;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -51,7 +49,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: localStorage.getItem('user'),
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
   status: 'idle',
