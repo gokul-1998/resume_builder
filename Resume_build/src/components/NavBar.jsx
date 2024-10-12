@@ -42,11 +42,19 @@ const Navbar = () => {
             <>
               {/* Use user.name or user.email based on what's available */}
               <Link
+              to="/createResume"
+              className="text-white mr-4 hover:underline"
+            >
+              Create Resume
+            </Link>
+
+              <Link
                 to={`/${user.username || user.email}`} // Dynamic URL based on username or email
                 className="text-white mr-4 hover:underline"
               >
                 Welcome, {user.username || user.email} {/* Display user name or email */}
               </Link>
+              
               <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
