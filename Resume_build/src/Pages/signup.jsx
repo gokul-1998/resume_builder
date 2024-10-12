@@ -1,29 +1,67 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom" // Import useNavigate
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
 
+// Debounce function to limit the number of API calls during typing
+function debounce(func, delay) {
+  let timer
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => func(...args), delay)
+  }
+}
+
 export default function SignUpPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  })
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" })
+  const [emailError, setEmailError] = useState("")
+  const [emailAvailable, setEmailAvailable] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
-  const navigate = useNavigate() // Initialize useNavigate
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+
+    if (name === "email") {
+      debouncedCheckEmailAvailability(value)
+    }
   }
+
+  const debouncedCheckEmailAvailability = debounce(async (email) => {
+    setEmailError("")
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_AUTH_BACKEND_URL}/users/check/${email}`
+      )
+
+      if (response.status === 409) {
+        setEmailError("Email is already taken. Please use another.")
+        setEmailAvailable(false)
+      } else if (response.ok) {
+        setEmailAvailable(true)
+      } else {
+        throw new Error("Error checking email availability.")
+      }
+    } catch {
+      setEmailError("Error checking email availability. Please try again.")
+      setEmailAvailable(false)
+    }
+  }, 500)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
     setSuccess(false)
+
+    if (!emailAvailable) {
+      setError("Please use a different email.")
+      return
+    }
 
     try {
       const response = await fetch(`${import.meta.env.VITE_AUTH_BACKEND_URL}` + '/register/', {
@@ -41,7 +79,6 @@ export default function SignUpPage() {
       setSuccess(true)
       setFormData({ name: "", email: "", password: "" })
 
-      // Redirect to login page after successful signup
       setTimeout(() => navigate("/login"), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred")
@@ -81,11 +118,17 @@ export default function SignUpPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                // className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
+                className={`${
+                  emailError ? "border-red-500" : "border-gray-300"
+                } appearance-none rounded-md w-full px-3 py-2`}
               />
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
             </div>
 
             <div>
