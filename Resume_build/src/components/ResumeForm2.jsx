@@ -92,7 +92,11 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
       const newData = { ...prevData };
       if (Array.isArray(newData[section])) {
         newData[section] = [...newData[section]];
-        newData[section][index] = { ...newData[section][index], [field]: value };
+        if (typeof newData[section][index] === 'object') {
+          newData[section][index] = { ...newData[section][index], [field]: value };
+        } else {
+          newData[section][index] = value;
+        }
       } else if (typeof newData[section] === 'object') {
         newData[section] = { ...newData[section], [field]: value };
       } else {
