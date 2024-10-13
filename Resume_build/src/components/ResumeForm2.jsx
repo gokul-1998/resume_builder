@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/collapsible"
 import { isEqual } from 'lodash'
 
-export default function ResumeForm({ initialResumeData }) {
+export default function ResumeForm({ initialResumeData,setResumeData }) {
   const [formData, setFormData] = useState(initialResumeData || {
     personalInfo: { name: '', title: '' },
     experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
@@ -54,6 +54,7 @@ export default function ResumeForm({ initialResumeData }) {
     if (initialResumeData) {
       setFormData(initialResumeData);
       lastSavedData.current = initialResumeData;
+      setResumeData(initialResumeData)
     }
   }, [initialResumeData]);
 
@@ -97,16 +98,20 @@ export default function ResumeForm({ initialResumeData }) {
   // ... (rest of the component code remains the same)
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
-      if (Array.isArray(prevData[section])) {
-        const newArray = [...prevData[section]];
-        newArray[index] = { ...newArray[index], [field]: value };
-        return { ...prevData, [section]: newArray };
-      } else if (typeof prevData[section] === 'object') {
-        return { ...prevData, [section]: { ...prevData[section], [field]: value } };
-      }
-      return { ...prevData, [section]: value };
-    });
-  };
+        const newData = { ...prevData };
+        if (Array.isArray(newData[section])) {
+          newData[section] = [...newData[section]];
+          newData[section][index] = { ...newData[section][index], [field]: value };
+        } else if (typeof newData[section] === 'object') {
+          newData[section] = { ...newData[section], [field]: value };
+        } else {
+          newData[section] = value;
+        }
+        setResumeData(newData);  // Call the updateResumeData function
+        return newData;
+      });
+    };
+  
 
   const handleArrayChange = (section, index, value) => {
     setFormData(prevData => {

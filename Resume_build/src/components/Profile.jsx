@@ -6,13 +6,13 @@ import ResumeForm from "./ResumeForm2";
 import Resume from "./resume1";
 import PrintButton from "./PrintButton";
 
-const Profile = () => {
+export default function Profile() {
   const { username } = useParams();
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000"; // API base URL
+  const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
   const [resumeData, setResumeData] = useState(null);
 
   const queryParams = new URLSearchParams(location.search);
@@ -21,7 +21,7 @@ const Profile = () => {
   useEffect(() => {
     if (user?.profile) {
       try {
-        const parsedProfile = JSON.parse(user.profile);  // Parse the profile JSON
+        const parsedProfile = JSON.parse(user.profile);
         setResumeData(parsedProfile.profile);
         localStorage.setItem("resumeData", JSON.stringify(parsedProfile.profile));
       } catch (error) {
@@ -51,10 +51,8 @@ const Profile = () => {
         console.error("Error fetching user:", error);
         setLoading(false);
       });
-  }, [username]);
+  }, [username, url]);
   
-
-  // Get current user from Redux store
   const userFromRedux = useSelector((state) => state.user);
   const [profilePicture, setProfilePicture] = useState(
     userFromRedux?.profilePicture || ""
@@ -77,23 +75,22 @@ const Profile = () => {
   }
 
   if (notFound) {
-    return <NotFoundPage />; // Show 404 page if user not found
+    return <NotFoundPage />;
   }
 
   return (
     <>
       <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+        {/* User profile details */}
         <h1 style={{ textAlign: "left", marginBottom: "20px" }}>
-          <span
-            style={{
-              color: "white",
-              fontWeight: "bold",
-              backgroundColor: "green",
-              padding: "5px",
-              borderRadius: "5px",
-              textTransform: "capitalize",
-            }}
-          >
+          <span style={{
+            color: "white",
+            fontWeight: "bold",
+            backgroundColor: "green",
+            padding: "5px",
+            borderRadius: "5px",
+            textTransform: "capitalize",
+          }}>
             {user?.name || username}'s
           </span>
           &nbsp;&nbsp; Profile
@@ -124,36 +121,26 @@ const Profile = () => {
         </div>
         <div style={{ marginBottom: "20px" }}>
           <h3>User Details</h3>
-          <p>
-            <strong>Username:</strong> {user?.name || "N/A"}
-          </p>
-          <p>
-            <strong>Email:</strong> {user?.email || "N/A"}
-          </p>
-          <p>
-            <strong>Joined:</strong>{" "}
-            {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
-          </p>
-          {/* Add other user details here */}
+          <p><strong>Username:</strong> {user?.name || "N/A"}</p>
+          <p><strong>Email:</strong> {user?.email || "N/A"}</p>
+          <p><strong>Joined:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</p>
         </div>
       </div>
      
-        <div className="App">
-    <div className="flex flex-row h-screen">
-  {/* Resume on the left */}
-  <div className="w-1/2 bg-gray-100 p-4">
-  <Resume resumeData={resumeData}/>
-  </div>
+      <div className="App">
+        <div className="flex flex-row h-screen">
+          {/* Resume on the left */}
+          <div className="w-1/2 bg-gray-100 p-4">
+            <Resume resumeData={resumeData}/>
+          </div>
 
-  {/* Form on the right, hidden during print */}
-  <div className="w-1/2 bg-white p-4 hide-on-print">
-  <ResumeForm initialResumeData={resumeData} />    
-  </div>
-</div>
-<PrintButton />
-</div>
+          {/* Form on the right, hidden during print */}
+          <div className="w-1/2 bg-white p-4 hide-on-print">
+            <ResumeForm initialResumeData={resumeData} setResumeData={setResumeData} />    
+          </div>
+        </div>
+        <PrintButton />
+      </div>
     </>
   );
-};
-
-export default Profile;
+}
