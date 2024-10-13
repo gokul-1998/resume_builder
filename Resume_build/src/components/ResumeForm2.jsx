@@ -53,7 +53,7 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
       setFormData(initialResumeData);
       setResumeData(initialResumeData);
     }
-  }, [initialResumeData]);
+  }, [initialResumeData, setResumeData]);
 
   const updateBackend = useCallback(async () => {
     const currentTime = Date.now();
@@ -87,7 +87,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
     alert('Form submitted successfully');
   };
 
-  // Rest of the component code remains unchanged
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
       const newData = { ...prevData };
@@ -99,66 +98,90 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
       } else {
         newData[section] = value;
       }
-      setResumeData(newData);  // Call the updateResumeData function
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const handleSkillChange = (category, index, value) => {
+    setFormData(prevData => {
+      const newSkills = { ...prevData.skills };
+      newSkills[category] = [...newSkills[category]];
+      newSkills[category][index] = value;
+      const newData = { ...prevData, skills: newSkills };
+      setResumeData(newData);
       return newData;
     });
   };
 
   const addField = (section) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [section]: [...prevData[section], section === 'experience' ? { title: '', company: '', duration: '', responsibilities: [''] } :
-                                        section === 'projects' ? { title: '', description: '' } :
-                                        section === 'academics' ? { degree: '', institution: '', year: '' } :
-                                        section === 'contact' ? { type: '', value: '' } :
-                                        section === 'awards_and_certifications' ? { title: '', organization: '', year: '' } :
-                                        '']
-    }));
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      if (section === 'experience') {
+        newData[section] = [...newData[section], { title: '', company: '', duration: '', responsibilities: [''] }];
+      } else if (section === 'projects') {
+        newData[section] = [...newData[section], { title: '', description: '' }];
+      } else if (section === 'academics') {
+        newData[section] = [...newData[section], { degree: '', institution: '', year: '' }];
+      } else if (section === 'contact') {
+        newData[section] = [...newData[section], { type: '', value: '' }];
+      } else if (section === 'awards_and_certifications') {
+        newData[section] = [...newData[section], { title: '', organization: '', year: '' }];
+      } else {
+        newData[section] = [...newData[section], ''];
+      }
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const removeField = (section, index) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [section]: prevData[section].filter((_, i) => i !== index),
-    }));
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData[section] = newData[section].filter((_, i) => i !== index);
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const addResponsibility = (expIndex) => {
-    setFormData(prevData => ({
-      ...prevData,
-      experience: prevData.experience.map((exp, i) =>
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.experience = newData.experience.map((exp, i) =>
         i === expIndex ? { ...exp, responsibilities: [...exp.responsibilities, ''] } : exp
-      )
-    }));
+      );
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const removeResponsibility = (expIndex, respIndex) => {
-    setFormData(prevData => ({
-      ...prevData,
-      experience: prevData.experience.map((exp, i) =>
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.experience = newData.experience.map((exp, i) =>
         i === expIndex ? { ...exp, responsibilities: exp.responsibilities.filter((_, j) => j !== respIndex) } : exp
-      )
-    }));
+      );
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const addSkill = (category) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: [...prevData.skills[category], ''],
-      }
-    }));
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.skills[category] = [...newData.skills[category], ''];
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const removeSkill = (category, index) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: prevData.skills[category].filter((_, i) => i !== index),
-      }
-    }));
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.skills[category] = newData.skills[category].filter((_, i) => i !== index);
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const toggleSection = (section) => {
@@ -166,7 +189,8 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
   };
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); updateBackend(); }} className="space-y-8 max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
+      {/* Personal Information */}
       <Collapsible open={openSections.personalInfo} onOpenChange={() => toggleSection('personalInfo')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full">
           <h2 className="text-lg font-semibold">Personal Information</h2>
@@ -179,7 +203,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
               id="name"
               value={formData.personalInfo.name}
               onChange={(e) => handleChange('personalInfo', null, 'name', e.target.value)}
-              
             />
           </div>
           <div>
@@ -188,7 +211,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
               id="title"
               value={formData.personalInfo.title}
               onChange={(e) => handleChange('personalInfo', null, 'title', e.target.value)}
-              
             />
           </div>
         </CollapsibleContent>
@@ -207,19 +229,16 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                 placeholder="Title"
                 value={exp.title}
                 onChange={(e) => handleChange('experience', index, 'title', e.target.value)}
-                
               />
               <Input
                 placeholder="Company"
                 value={exp.company}
                 onChange={(e) => handleChange('experience', index, 'company', e.target.value)}
-                
               />
               <Input
                 placeholder="Duration eg : ( Jan 2020 - Jan 2021 )"
                 value={exp.duration}
                 onChange={(e) => handleChange('experience', index, 'duration', e.target.value)}
-                
               />
               {exp.responsibilities.map((resp, respIndex) => (
                 <div key={respIndex} className="flex items-center space-x-2">
@@ -231,7 +250,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                       newResp[respIndex] = e.target.value
                       handleChange('experience', index, 'responsibilities', newResp)
                     }}
-                    
                   />
                   <Button type="button" onClick={() => removeResponsibility(index, respIndex)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -265,13 +283,11 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                 placeholder="Title"
                 value={project.title}
                 onChange={(e) => handleChange('projects', index, 'title', e.target.value)}
-                
               />
               <Textarea
                 placeholder="Description"
                 value={project.description}
                 onChange={(e) => handleChange('projects', index, 'description', e.target.value)}
-                
               />
               <Button type="button" onClick={() => removeField('projects', index)} variant="destructive" size="sm">
                 Remove Project
@@ -294,7 +310,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
           <Textarea
             value={formData.aboutMe}
             onChange={(e) => handleChange('aboutMe', null, null, e.target.value)}
-            
           />
         </CollapsibleContent>
       </Collapsible>
@@ -312,19 +327,16 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                 placeholder="Degree"
                 value={academic.degree}
                 onChange={(e) => handleChange('academics', index, 'degree', e.target.value)}
-                
               />
               <Input
                 placeholder="Institution"
                 value={academic.institution}
                 onChange={(e) => handleChange('academics', index, 'institution', e.target.value)}
-                
               />
               <Input
                 placeholder="Year"
                 value={academic.year}
                 onChange={(e) => handleChange('academics', index, 'year', e.target.value)}
-                
               />
               <Button type="button" onClick={() => removeField('academics', index)} variant="destructive" size="sm">
                 Remove Academic
@@ -340,8 +352,8 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
       {/* Contact */}
       <Collapsible open={openSections.contact} onOpenChange={() => toggleSection('contact')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <h2 className="text-lg font-semibold">Contact</h2>
-          {openSections.contact ? <ChevronUpIcon className="h-5 w-5" /> :   <ChevronDownIcon className="h-5 w-5" />}
+          <h2 className="text-lg  font-semibold">Contact</h2>
+          {openSections.contact ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           {formData.contact.map((contact, index) => (
@@ -350,13 +362,11 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                 placeholder="Type (e.g., email, linkedin)"
                 value={contact.type}
                 onChange={(e) => handleChange('contact', index, 'type', e.target.value)}
-                
               />
               <Input
                 placeholder="Value"
                 value={contact.value}
                 onChange={(e) => handleChange('contact', index, 'value', e.target.value)}
-                
               />
               <Button type="button" onClick={() => removeField('contact', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
@@ -379,13 +389,12 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
           {Object.entries(formData.skills).map(([category, skills]) => (
             <div key={category} className="space-y-2">
               <h3 className="font-medium">{category}</h3>
-              {Array.isArray(skills) && skills.map((skill, index) => (
+              {skills.map((skill, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <Input
                     placeholder={`${category} skill`}
                     value={skill}
                     onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                    
                   />
                   <Button type="button" onClick={() => removeSkill(category, index)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -407,13 +416,12 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
           {openSections.awards_and_certifications ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {Array.isArray(formData.awards_and_certifications) && formData.awards_and_certifications.map((award, index) => (
+          {formData.awards_and_certifications.map((award, index) => (
             <div key={index} className="space-y-2 p-4 bg-white rounded-md">
               <Input
                 placeholder="Title"
                 value={award.title}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'title', e.target.value)}
-                
               />
               <Input
                 placeholder="Organization"
@@ -424,7 +432,6 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
                 placeholder="Year"
                 value={award.year}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'year', e.target.value)}
-                
               />
               <Button type="button" onClick={() => removeField('awards_and_certifications', index)} variant="destructive" size="sm">
                 Remove Award/Certification
@@ -444,13 +451,12 @@ export default function ResumeForm({ initialResumeData, setResumeData }) {
           {openSections.interests ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {Array.isArray(formData.interests) && formData.interests.map((interest, index) => (
+          {formData.interests.map((interest, index) => (
             <div key={index} className="flex items-center space-x-2">
               <Input
                 placeholder="Interest"
                 value={interest}
-                onChange={(e) => handleArrayChange('interests', index, e.target.value)}
-                
+                onChange={(e) => handleChange('interests', index, null, e.target.value)}
               />
               <Button type="button" onClick={() => removeField('interests', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
