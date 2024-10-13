@@ -136,8 +136,8 @@ const Profile = () => {
           {/* Add other user details here */}
         </div>
       </div>
-      <ResumeForm />
-      <Resume resumeData={resumeData}/>
+      <ResumeForm initialResumeData={resumeData} />    
+        <Resume resumeData={resumeData}/>
     </>
   );
 };

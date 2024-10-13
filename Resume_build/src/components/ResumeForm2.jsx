@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,6 +11,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { isEqual } from 'lodash'
 
 export default function ResumeForm({ initialResumeData }) {
   const [formData, setFormData] = useState(initialResumeData || {
@@ -46,42 +47,54 @@ export default function ResumeForm({ initialResumeData }) {
     interests: true
   });
 
+  const lastSavedData = useRef(formData);
+  const lastApiCallTime = useRef(Date.now());
+
   useEffect(() => {
     if (initialResumeData) {
       setFormData(initialResumeData);
+      lastSavedData.current = initialResumeData;
     }
   }, [initialResumeData]);
 
-  // Function to send updated formData to the backend
   const updateBackend = useCallback(async () => {
-    const location = window.location.href;
-    const username = location.split("/")[3];
+    const currentTime = Date.now();
+    if (currentTime - lastApiCallTime.current < 5000) {
+      return; // Don't call API if less than 5 seconds have passed
+    }
 
-    try {
-      const response = await fetch(`http://localhost:8000/users/${username}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ profile: formData }),
-      });
+    if (!isEqual(formData, lastSavedData.current)) {
+      const location = window.location.href;
+      const username = location.split("/")[3];
 
-      if (response.ok) {
-        console.log('Data updated successfully');
-      } else {
-        console.error('Error updating data:', response.statusText);
+      try {
+        const response = await fetch(`http://localhost:8000/users/${username}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ profile: formData }),
+        });
+
+        if (response.ok) {
+          console.log('Data updated successfully');
+          lastSavedData.current = formData;
+          lastApiCallTime.current = currentTime;
+        } else {
+          console.error('Error updating data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Failed to update data:', error);
       }
-    } catch (error) {
-      console.error('Failed to update data:', error);
     }
   }, [formData]);
 
-  // Update backend periodically (every 5 minutes)
   useEffect(() => {
-    const intervalId = setInterval(updateBackend, 300000); // 5 minutes
+    const intervalId = setInterval(updateBackend, 5000); // Check every 5 seconds
     return () => clearInterval(intervalId);
   }, [updateBackend]);
 
+  // ... (rest of the component code remains the same)
   const handleChange = (section, index, field, value) => {
     setFormData(prevData => {
       if (Array.isArray(prevData[section])) {
@@ -181,8 +194,7 @@ export default function ResumeForm({ initialResumeData }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
-      {/* Personal Information */}
+    <form onSubmit={(e) => { e.preventDefault(); updateBackend(); }} className="space-y-8 max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
       <Collapsible open={openSections.personalInfo} onOpenChange={() => toggleSection('personalInfo')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full">
           <h2 className="text-lg font-semibold">Personal Information</h2>
@@ -195,7 +207,7 @@ export default function ResumeForm({ initialResumeData }) {
               id="name"
               value={formData.personalInfo.name}
               onChange={(e) => handleChange('personalInfo', null, 'name', e.target.value)}
-              required
+              
             />
           </div>
           <div>
@@ -204,7 +216,7 @@ export default function ResumeForm({ initialResumeData }) {
               id="title"
               value={formData.personalInfo.title}
               onChange={(e) => handleChange('personalInfo', null, 'title', e.target.value)}
-              required
+              
             />
           </div>
         </CollapsibleContent>
@@ -223,19 +235,19 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Title"
                 value={exp.title}
                 onChange={(e) => handleChange('experience', index, 'title', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Company"
                 value={exp.company}
                 onChange={(e) => handleChange('experience', index, 'company', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Duration eg : ( Jan 2020 - Jan 2021 )"
                 value={exp.duration}
                 onChange={(e) => handleChange('experience', index, 'duration', e.target.value)}
-                required
+                
               />
               {exp.responsibilities.map((resp, respIndex) => (
                 <div key={respIndex} className="flex items-center space-x-2">
@@ -247,7 +259,7 @@ export default function ResumeForm({ initialResumeData }) {
                       newResp[respIndex] = e.target.value
                       handleChange('experience', index, 'responsibilities', newResp)
                     }}
-                    required
+                    
                   />
                   <Button type="button" onClick={() => removeResponsibility(index, respIndex)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -281,13 +293,13 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Title"
                 value={project.title}
                 onChange={(e) => handleChange('projects', index, 'title', e.target.value)}
-                required
+                
               />
               <Textarea
                 placeholder="Description"
                 value={project.description}
                 onChange={(e) => handleChange('projects', index, 'description', e.target.value)}
-                required
+                
               />
               <Button type="button" onClick={() => removeField('projects', index)} variant="destructive" size="sm">
                 Remove Project
@@ -310,7 +322,7 @@ export default function ResumeForm({ initialResumeData }) {
           <Textarea
             value={formData.aboutMe}
             onChange={(e) => handleChange('aboutMe', null, null, e.target.value)}
-            required
+            
           />
         </CollapsibleContent>
       </Collapsible>
@@ -328,19 +340,19 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Degree"
                 value={academic.degree}
                 onChange={(e) => handleChange('academics', index, 'degree', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Institution"
                 value={academic.institution}
                 onChange={(e) => handleChange('academics', index, 'institution', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Year"
                 value={academic.year}
                 onChange={(e) => handleChange('academics', index, 'year', e.target.value)}
-                required
+                
               />
               <Button type="button" onClick={() => removeField('academics', index)} variant="destructive" size="sm">
                 Remove Academic
@@ -366,13 +378,13 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Type (e.g., email, linkedin)"
                 value={contact.type}
                 onChange={(e) => handleChange('contact', index, 'type', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Value"
                 value={contact.value}
                 onChange={(e) => handleChange('contact', index, 'value', e.target.value)}
-                required
+                
               />
               <Button type="button" onClick={() => removeField('contact', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
@@ -401,7 +413,7 @@ export default function ResumeForm({ initialResumeData }) {
                     placeholder={`${category} skill`}
                     value={skill}
                     onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                    required
+                    
                   />
                   <Button type="button" onClick={() => removeSkill(category, index)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -429,7 +441,7 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Title"
                 value={award.title}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'title', e.target.value)}
-                required
+                
               />
               <Input
                 placeholder="Organization"
@@ -440,7 +452,7 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Year"
                 value={award.year}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'year', e.target.value)}
-                required
+                
               />
               <Button type="button" onClick={() => removeField('awards_and_certifications', index)} variant="destructive" size="sm">
                 Remove Award/Certification
@@ -466,7 +478,7 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Interest"
                 value={interest}
                 onChange={(e) => handleArrayChange('interests', index, e.target.value)}
-                required
+                
               />
               <Button type="button" onClick={() => removeField('interests', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
