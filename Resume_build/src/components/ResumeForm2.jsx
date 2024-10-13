@@ -11,9 +11,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { isEqual } from 'lodash'
 
-export default function ResumeForm({ initialResumeData,setResumeData }) {
+export default function ResumeForm({ initialResumeData, setResumeData }) {
   const [formData, setFormData] = useState(initialResumeData || {
     personalInfo: { name: '', title: '' },
     experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
@@ -47,88 +46,62 @@ export default function ResumeForm({ initialResumeData,setResumeData }) {
     interests: true
   });
 
-  const lastSavedData = useRef(formData);
   const lastApiCallTime = useRef(Date.now());
 
   useEffect(() => {
     if (initialResumeData) {
       setFormData(initialResumeData);
-      lastSavedData.current = initialResumeData;
-      setResumeData(initialResumeData)
+      setResumeData(initialResumeData);
     }
   }, [initialResumeData]);
 
   const updateBackend = useCallback(async () => {
     const currentTime = Date.now();
-    if (currentTime - lastApiCallTime.current < 5000) {
-      return; // Don't call API if less than 5 seconds have passed
-    }
+    const location = window.location.href;
+    const username = location.split("/")[3];
 
-    if (!isEqual(formData, lastSavedData.current)) {
-      const location = window.location.href;
-      const username = location.split("/")[3];
+    try {
+      const response = await fetch(`http://localhost:8000/users/${username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profile: formData }),
+      });
 
-      try {
-        const response = await fetch(`http://localhost:8000/users/${username}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ profile: formData }),
-        });
-
-        if (response.ok) {
-          console.log('Data updated successfully');
-          lastSavedData.current = formData;
-          lastApiCallTime.current = currentTime;
-        } else {
-          console.error('Error updating data:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Failed to update data:', error);
+      if (response.ok) {
+        console.log('Data updated successfully');
+        alert('Data updated successfully');
+        lastApiCallTime.current = currentTime;
+      } else {
+        console.error('Error updating data:', response.statusText);
       }
+    } catch (error) {
+      console.error('Failed to update data:', error);
     }
   }, [formData]);
 
-  useEffect(() => {
-    const intervalId = setInterval(updateBackend, 5000); // Check every 5 seconds
-    return () => clearInterval(intervalId);
-  }, [updateBackend]);
-
-  // ... (rest of the component code remains the same)
-  const handleChange = (section, index, field, value) => {
-    setFormData(prevData => {
-        const newData = { ...prevData };
-        if (Array.isArray(newData[section])) {
-          newData[section] = [...newData[section]];
-          newData[section][index] = { ...newData[section][index], [field]: value };
-        } else if (typeof newData[section] === 'object') {
-          newData[section] = { ...newData[section], [field]: value };
-        } else {
-          newData[section] = value;
-        }
-        setResumeData(newData);  // Call the updateResumeData function
-        return newData;
-      });
-    };
-  
-
-  const handleArrayChange = (section, index, value) => {
-    setFormData(prevData => {
-      const newArray = [...prevData[section]];
-      newArray[index] = value;
-      return { ...prevData, [section]: newArray };
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await updateBackend();
+    alert('Form submitted successfully');
   };
 
-  const handleSkillChange = (category, index, value) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: prevData.skills[category].map((skill, i) => i === index ? value : skill),
+  // Rest of the component code remains unchanged
+  const handleChange = (section, index, field, value) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      if (Array.isArray(newData[section])) {
+        newData[section] = [...newData[section]];
+        newData[section][index] = { ...newData[section][index], [field]: value };
+      } else if (typeof newData[section] === 'object') {
+        newData[section] = { ...newData[section], [field]: value };
+      } else {
+        newData[section] = value;
       }
-    }));
+      setResumeData(newData);  // Call the updateResumeData function
+      return newData;
+    });
   };
 
   const addField = (section) => {
@@ -153,7 +126,7 @@ export default function ResumeForm({ initialResumeData,setResumeData }) {
   const addResponsibility = (expIndex) => {
     setFormData(prevData => ({
       ...prevData,
-      experience: prevData.experience.map((exp, i) => 
+      experience: prevData.experience.map((exp, i) =>
         i === expIndex ? { ...exp, responsibilities: [...exp.responsibilities, ''] } : exp
       )
     }));
@@ -162,7 +135,7 @@ export default function ResumeForm({ initialResumeData,setResumeData }) {
   const removeResponsibility = (expIndex, respIndex) => {
     setFormData(prevData => ({
       ...prevData,
-      experience: prevData.experience.map((exp, i) => 
+      experience: prevData.experience.map((exp, i) =>
         i === expIndex ? { ...exp, responsibilities: exp.responsibilities.filter((_, j) => j !== respIndex) } : exp
       )
     }));
@@ -186,12 +159,6 @@ export default function ResumeForm({ initialResumeData,setResumeData }) {
         [category]: prevData.skills[category].filter((_, i) => i !== index),
       }
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await updateBackend();
-    alert('Form submitted successfully');
   };
 
   const toggleSection = (section) => {
