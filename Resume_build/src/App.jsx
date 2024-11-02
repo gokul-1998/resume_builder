@@ -13,6 +13,8 @@ import Dashboard from './components/dashboard.jsx'; // Dashboard component
 import Navbar from './components/NavBar.jsx'; // Navbar component
 import Profile from './components/Profile'; // Profile component
 import PrivateRoute from './components/PrivateRoute.jsx';
+import NewResume from './components/NewResume.jsx';
+import NewAIResume from './components/NewAIResume.jsx';
 
 
 
@@ -30,19 +32,15 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} /> 
-        <Route element={<PrivateRoute />}>
 
+        <Route element={<PrivateRoute />}>
+        <Route path='/createResume' element={<NewResume />} />
+        <Route path='/createAiResume' element={<NewAIResume />} />
         <Route path="/dashboard" element={<Dashboard />} /> {/* Protect dashboard route */}
         <Route path="/" element={<Home />} />
         <Route path="/:username" element={ <Profile />} /> 
         </Route>
-
         
-
-
-        {/* Protect Home route */}
-
-        {/* Catch all other routes - 404 Page */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
