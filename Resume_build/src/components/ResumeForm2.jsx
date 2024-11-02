@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,7 +12,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-export default function ResumeForm({ initialResumeData }) {
+export default function ResumeForm({ initialResumeData, setResumeData }) {
   const [formData, setFormData] = useState(initialResumeData || {
     personalInfo: { name: '', title: '' },
     experience: [{ title: '', company: '', duration: '', responsibilities: [''] }],
@@ -46,14 +46,17 @@ export default function ResumeForm({ initialResumeData }) {
     interests: true
   });
 
+  const lastApiCallTime = useRef(Date.now());
+
   useEffect(() => {
     if (initialResumeData) {
       setFormData(initialResumeData);
+      setResumeData(initialResumeData);
     }
-  }, [initialResumeData]);
+  }, [initialResumeData, setResumeData]);
 
-  // Function to send updated formData to the backend
   const updateBackend = useCallback(async () => {
+    const currentTime = Date.now();
     const location = window.location.href;
     const username = location.split("/")[3];
 
@@ -68,6 +71,8 @@ export default function ResumeForm({ initialResumeData }) {
 
       if (response.ok) {
         console.log('Data updated successfully');
+        alert('Data updated successfully');
+        lastApiCallTime.current = currentTime;
       } else {
         console.error('Error updating data:', response.statusText);
       }
@@ -76,104 +81,111 @@ export default function ResumeForm({ initialResumeData }) {
     }
   }, [formData]);
 
-  // Update backend periodically (every 5 minutes)
-  useEffect(() => {
-    const intervalId = setInterval(updateBackend, 300000); // 5 minutes
-    return () => clearInterval(intervalId);
-  }, [updateBackend]);
-
-  const handleChange = (section, index, field, value) => {
-    setFormData(prevData => {
-      if (Array.isArray(prevData[section])) {
-        const newArray = [...prevData[section]];
-        newArray[index] = { ...newArray[index], [field]: value };
-        return { ...prevData, [section]: newArray };
-      } else if (typeof prevData[section] === 'object') {
-        return { ...prevData, [section]: { ...prevData[section], [field]: value } };
-      }
-      return { ...prevData, [section]: value };
-    });
-  };
-
-  const handleArrayChange = (section, index, value) => {
-    setFormData(prevData => {
-      const newArray = [...prevData[section]];
-      newArray[index] = value;
-      return { ...prevData, [section]: newArray };
-    });
-  };
-
-  const handleSkillChange = (category, index, value) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: prevData.skills[category].map((skill, i) => i === index ? value : skill),
-      }
-    }));
-  };
-
-  const addField = (section) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [section]: [...prevData[section], section === 'experience' ? { title: '', company: '', duration: '', responsibilities: [''] } :
-                                        section === 'projects' ? { title: '', description: '' } :
-                                        section === 'academics' ? { degree: '', institution: '', year: '' } :
-                                        section === 'contact' ? { type: '', value: '' } :
-                                        section === 'awards_and_certifications' ? { title: '', organization: '', year: '' } :
-                                        '']
-    }));
-  };
-
-  const removeField = (section, index) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [section]: prevData[section].filter((_, i) => i !== index),
-    }));
-  };
-
-  const addResponsibility = (expIndex) => {
-    setFormData(prevData => ({
-      ...prevData,
-      experience: prevData.experience.map((exp, i) => 
-        i === expIndex ? { ...exp, responsibilities: [...exp.responsibilities, ''] } : exp
-      )
-    }));
-  };
-
-  const removeResponsibility = (expIndex, respIndex) => {
-    setFormData(prevData => ({
-      ...prevData,
-      experience: prevData.experience.map((exp, i) => 
-        i === expIndex ? { ...exp, responsibilities: exp.responsibilities.filter((_, j) => j !== respIndex) } : exp
-      )
-    }));
-  };
-
-  const addSkill = (category) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: [...prevData.skills[category], ''],
-      }
-    }));
-  };
-
-  const removeSkill = (category, index) => {
-    setFormData(prevData => ({
-      ...prevData,
-      skills: {
-        ...prevData.skills,
-        [category]: prevData.skills[category].filter((_, i) => i !== index),
-      }
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     await updateBackend();
     alert('Form submitted successfully');
+  };
+
+  const handleChange = (section, index, field, value) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      if (Array.isArray(newData[section])) {
+        newData[section] = [...newData[section]];
+        if (typeof newData[section][index] === 'object') {
+          newData[section][index] = { ...newData[section][index], [field]: value };
+        } else {
+          newData[section][index] = value;
+        }
+      } else if (typeof newData[section] === 'object') {
+        newData[section] = { ...newData[section], [field]: value };
+      } else {
+        newData[section] = value;
+      }
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const handleSkillChange = (category, index, value) => {
+    setFormData(prevData => {
+      const newSkills = { ...prevData.skills };
+      newSkills[category] = [...newSkills[category]];
+      newSkills[category][index] = value;
+      const newData = { ...prevData, skills: newSkills };
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const addField = (section) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      if (section === 'experience') {
+        newData[section] = [...newData[section], { title: '', company: '', duration: '', responsibilities: [''] }];
+      } else if (section === 'projects') {
+        newData[section] = [...newData[section], { title: '', description: '' }];
+      } else if (section === 'academics') {
+        newData[section] = [...newData[section], { degree: '', institution: '', year: '' }];
+      } else if (section === 'contact') {
+        newData[section] = [...newData[section], { type: '', value: '' }];
+      } else if (section === 'awards_and_certifications') {
+        newData[section] = [...newData[section], { title: '', organization: '', year: '' }];
+      } else {
+        newData[section] = [...newData[section], ''];
+      }
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const removeField = (section, index) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData[section] = newData[section].filter((_, i) => i !== index);
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const addResponsibility = (expIndex) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.experience = newData.experience.map((exp, i) =>
+        i === expIndex ? { ...exp, responsibilities: [...exp.responsibilities, ''] } : exp
+      );
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const removeResponsibility = (expIndex, respIndex) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.experience = newData.experience.map((exp, i) =>
+        i === expIndex ? { ...exp, responsibilities: exp.responsibilities.filter((_, j) => j !== respIndex) } : exp
+      );
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const addSkill = (category) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.skills[category] = [...newData.skills[category], ''];
+      setResumeData(newData);
+      return newData;
+    });
+  };
+
+  const removeSkill = (category, index) => {
+    setFormData(prevData => {
+      const newData = { ...prevData };
+      newData.skills[category] = newData.skills[category].filter((_, i) => i !== index);
+      setResumeData(newData);
+      return newData;
+    });
   };
 
   const toggleSection = (section) => {
@@ -195,7 +207,6 @@ export default function ResumeForm({ initialResumeData }) {
               id="name"
               value={formData.personalInfo.name}
               onChange={(e) => handleChange('personalInfo', null, 'name', e.target.value)}
-              required
             />
           </div>
           <div>
@@ -204,7 +215,6 @@ export default function ResumeForm({ initialResumeData }) {
               id="title"
               value={formData.personalInfo.title}
               onChange={(e) => handleChange('personalInfo', null, 'title', e.target.value)}
-              required
             />
           </div>
         </CollapsibleContent>
@@ -223,19 +233,16 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Title"
                 value={exp.title}
                 onChange={(e) => handleChange('experience', index, 'title', e.target.value)}
-                required
               />
               <Input
                 placeholder="Company"
                 value={exp.company}
                 onChange={(e) => handleChange('experience', index, 'company', e.target.value)}
-                required
               />
               <Input
                 placeholder="Duration eg : ( Jan 2020 - Jan 2021 )"
                 value={exp.duration}
                 onChange={(e) => handleChange('experience', index, 'duration', e.target.value)}
-                required
               />
               {exp.responsibilities.map((resp, respIndex) => (
                 <div key={respIndex} className="flex items-center space-x-2">
@@ -247,7 +254,6 @@ export default function ResumeForm({ initialResumeData }) {
                       newResp[respIndex] = e.target.value
                       handleChange('experience', index, 'responsibilities', newResp)
                     }}
-                    required
                   />
                   <Button type="button" onClick={() => removeResponsibility(index, respIndex)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -281,13 +287,11 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Title"
                 value={project.title}
                 onChange={(e) => handleChange('projects', index, 'title', e.target.value)}
-                required
               />
               <Textarea
                 placeholder="Description"
                 value={project.description}
                 onChange={(e) => handleChange('projects', index, 'description', e.target.value)}
-                required
               />
               <Button type="button" onClick={() => removeField('projects', index)} variant="destructive" size="sm">
                 Remove Project
@@ -310,7 +314,6 @@ export default function ResumeForm({ initialResumeData }) {
           <Textarea
             value={formData.aboutMe}
             onChange={(e) => handleChange('aboutMe', null, null, e.target.value)}
-            required
           />
         </CollapsibleContent>
       </Collapsible>
@@ -328,19 +331,16 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Degree"
                 value={academic.degree}
                 onChange={(e) => handleChange('academics', index, 'degree', e.target.value)}
-                required
               />
               <Input
                 placeholder="Institution"
                 value={academic.institution}
                 onChange={(e) => handleChange('academics', index, 'institution', e.target.value)}
-                required
               />
               <Input
                 placeholder="Year"
                 value={academic.year}
                 onChange={(e) => handleChange('academics', index, 'year', e.target.value)}
-                required
               />
               <Button type="button" onClick={() => removeField('academics', index)} variant="destructive" size="sm">
                 Remove Academic
@@ -356,8 +356,8 @@ export default function ResumeForm({ initialResumeData }) {
       {/* Contact */}
       <Collapsible open={openSections.contact} onOpenChange={() => toggleSection('contact')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <h2 className="text-lg font-semibold">Contact</h2>
-          {openSections.contact ? <ChevronUpIcon className="h-5 w-5" /> :   <ChevronDownIcon className="h-5 w-5" />}
+          <h2 className="text-lg  font-semibold">Contact</h2>
+          {openSections.contact ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           {formData.contact.map((contact, index) => (
@@ -366,13 +366,11 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Type (e.g., email, linkedin)"
                 value={contact.type}
                 onChange={(e) => handleChange('contact', index, 'type', e.target.value)}
-                required
               />
               <Input
                 placeholder="Value"
                 value={contact.value}
                 onChange={(e) => handleChange('contact', index, 'value', e.target.value)}
-                required
               />
               <Button type="button" onClick={() => removeField('contact', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
@@ -395,13 +393,12 @@ export default function ResumeForm({ initialResumeData }) {
           {Object.entries(formData.skills).map(([category, skills]) => (
             <div key={category} className="space-y-2">
               <h3 className="font-medium">{category}</h3>
-              {Array.isArray(skills) && skills.map((skill, index) => (
+              {skills.map((skill, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <Input
                     placeholder={`${category} skill`}
                     value={skill}
                     onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                    required
                   />
                   <Button type="button" onClick={() => removeSkill(category, index)} variant="destructive" size="icon">
                     <MinusIcon className="h-4 w-4" />
@@ -423,13 +420,12 @@ export default function ResumeForm({ initialResumeData }) {
           {openSections.awards_and_certifications ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {Array.isArray(formData.awards_and_certifications) && formData.awards_and_certifications.map((award, index) => (
+          {formData.awards_and_certifications.map((award, index) => (
             <div key={index} className="space-y-2 p-4 bg-white rounded-md">
               <Input
                 placeholder="Title"
                 value={award.title}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'title', e.target.value)}
-                required
               />
               <Input
                 placeholder="Organization"
@@ -440,7 +436,6 @@ export default function ResumeForm({ initialResumeData }) {
                 placeholder="Year"
                 value={award.year}
                 onChange={(e) => handleChange('awards_and_certifications', index, 'year', e.target.value)}
-                required
               />
               <Button type="button" onClick={() => removeField('awards_and_certifications', index)} variant="destructive" size="sm">
                 Remove Award/Certification
@@ -460,13 +455,12 @@ export default function ResumeForm({ initialResumeData }) {
           {openSections.interests ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          {Array.isArray(formData.interests) && formData.interests.map((interest, index) => (
+          {formData.interests.map((interest, index) => (
             <div key={index} className="flex items-center space-x-2">
               <Input
                 placeholder="Interest"
                 value={interest}
-                onChange={(e) => handleArrayChange('interests', index, e.target.value)}
-                required
+                onChange={(e) => handleChange('interests', index, null, e.target.value)}
               />
               <Button type="button" onClick={() => removeField('interests', index)} variant="destructive" size="icon">
                 <MinusIcon className="h-4 w-4" />
