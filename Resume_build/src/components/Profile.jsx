@@ -4,6 +4,8 @@ import NotFoundPage from "./NotFoundPage";
 import ResumeForm from "./ResumeForm2";
 import Resume from "./resume1";
 import PrintButton from "./PrintButton";
+import ProfileResume from "./ProfileResume";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Profile() {
   const { username } = useParams();
@@ -50,86 +52,97 @@ export default function Profile() {
         console.error("Error fetching user:", error);
         setLoading(false);
       });
-  }, [username, url]);
+  }, [username]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        Loading...
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (notFound) {
     return <NotFoundPage />;
   }
 
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    const newParams = new URLSearchParams(location.search);
+    newParams.set("tab", value);
+    window.history.pushState({}, "", `${location.pathname}?${newParams.toString()}`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        {/* Profile Header */}
-        <div className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">{user?.name}</h1>
-            <span className="text-sm text-gray-600">
-              Joined {new Date(user?.created_at).toLocaleDateString()}
-            </span>
-          </div>
-          
-          {/* Tabs */}
-          <div className="flex space-x-4 border-b">
-            <button
-              className={`py-2 px-4 ${activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              Profile
-            </button>
-            <button
-              className={`py-2 px-4 ${activeTab === 'resume' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
-              onClick={() => setActiveTab('resume')}
-            >
-              Resume
-            </button>
-          </div>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">{user.name}'s Profile</h1>
+        <p className="text-gray-600">{user.email}</p>
+      </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {activeTab === 'profile' && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-700 mb-2">Contact</h2>
-                <p className="text-gray-600">{user?.email}</p>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="resume">Resume</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-4">
+          {resumeData && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <h2 className="text-xl font-semibold mb-4">About Me</h2>
+                  <p>{resumeData.aboutMe}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+                  {resumeData.contact?.map((contact, index) => (
+                    <div key={index} className="mb-2">
+                      <strong>{contact.type}:</strong> {contact.value}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {user?.profile && Object.keys(JSON.parse(user.profile)).length > 0 && (
-                <div className="border-t pt-4">
-                  <h2 className="text-lg font-semibold text-gray-700 mb-2">Profile Information</h2>
-                  <div className="space-y-2">
-                    {Object.entries(JSON.parse(user.profile)).map(([key, value]) => (
-                      <div key={key} className="flex">
-                        <span className="font-medium text-gray-700 w-1/3 capitalize">
-                          {key.replace(/_/g, ' ')}:
-                        </span>
-                        <span className="text-gray-600">{value}</span>
+              <div className="space-y-4">
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <h2 className="text-xl font-semibold mb-4">Skills</h2>
+                  {Object.entries(resumeData.skills || {}).map(([category, skills]) => (
+                    <div key={category} className="mb-4">
+                      <h3 className="font-medium mb-2">{category}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {skills.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                          >
+                            {skill}
+                          </span>
+                        ))}
                       </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <h2 className="text-xl font-semibold mb-4">Interests</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {resumeData.interests?.map((interest, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                      >
+                        {interest}
+                      </span>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'resume' && resumeData && (
-            <div>
-              <div className="flex justify-end mb-4">
-                <PrintButton />
               </div>
-              <Resume resumeData={resumeData} />
             </div>
           )}
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="resume">
+          <ProfileResume username={username} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
