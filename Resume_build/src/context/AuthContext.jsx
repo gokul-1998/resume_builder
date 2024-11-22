@@ -90,6 +90,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleLogin = async (userData) => {
+    if (userData?.token) {
+      localStorage.setItem('token', userData.token);
+      if (userData.refresh_token) {
+        localStorage.setItem('refreshToken', userData.refresh_token);
+      }
+    }
     setUser(userData);
     setIsAuthenticated(true);
     setLoading(false);

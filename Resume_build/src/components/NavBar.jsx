@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../features/auth/authSlice'
@@ -16,8 +16,13 @@ import {
 export default function Navbar() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { user, isAuthenticated, handleLogout: authLogout } = useAuth()
+  const { user: authUser, isAuthenticated: authIsAuthenticated, handleLogout: authLogout } = useAuth()
+  const { isAuthenticated: reduxIsAuthenticated, user: reduxUser } = useSelector((state) => state.auth)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Use either auth source, preferring AuthContext
+  const isAuthenticated = authIsAuthenticated || reduxIsAuthenticated
+  const user = authUser || reduxUser
 
   const handleLogout = () => {
     dispatch(logout())
