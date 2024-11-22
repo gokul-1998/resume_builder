@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useParams, useLocation } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import ResumeForm from "./ResumeForm2";
@@ -14,9 +13,9 @@ export default function Profile() {
   const [notFound, setNotFound] = useState(false);
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
   const [resumeData, setResumeData] = useState(null);
+  const [activeTab, setActiveTab] = useState(new URLSearchParams(location.search).get("tab") || "profile");
 
   const queryParams = new URLSearchParams(location.search);
-  const tab = queryParams.get("tab");
   
   useEffect(() => {
     if (user?.profile) {
@@ -31,7 +30,7 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-    fetch(`${url}/users/${username}`)
+    fetch(`${url}/api/auth/user/${username}`)
       .then((res) => {
         if (res.status === 404) {
           setNotFound(true);
@@ -52,26 +51,13 @@ export default function Profile() {
         setLoading(false);
       });
   }, [username, url]);
-  
-  const userFromRedux = useSelector((state) => state.user);
-  const [profilePicture, setProfilePicture] = useState(
-    userFromRedux?.profilePicture || ""
-  );
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicture(reader.result);
-        // Here you would typically upload the file to your server
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (notFound) {
@@ -79,68 +65,71 @@ export default function Profile() {
   }
 
   return (
-    <>
-      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-        {/* User profile details */}
-        <h1 style={{ textAlign: "left", marginBottom: "20px" }}>
-          <span style={{
-            color: "white",
-            fontWeight: "bold",
-            backgroundColor: "green",
-            padding: "5px",
-            borderRadius: "5px",
-            textTransform: "capitalize",
-          }}>
-            {user?.name || username}'s
-          </span>
-          &nbsp;&nbsp; Profile
-        </h1>
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <img
-            src={profilePicture || "https://via.placeholder.com/150"}
-            alt="Profile"
-            style={{
-              borderRadius: "50%",
-              width: "150px",
-              height: "150px",
-              objectFit: "cover",
-              border: "2px solid #ddd",
-            }}
-          />
-        </div>
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{
-              display: "block",
-              margin: "0 auto",
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <h3>User Details</h3>
-          <p><strong>Username:</strong> {user?.name || "N/A"}</p>
-          <p><strong>Email:</strong> {user?.email || "N/A"}</p>
-          <p><strong>Joined:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</p>
-        </div>
-      </div>
-     
-      <div className="App">
-        <div className="flex flex-row h-screen">
-          {/* Resume on the left */}
-          <div className="w-1/2 bg-gray-100 p-4">
-            <Resume resumeData={resumeData}/>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        {/* Profile Header */}
+        <div className="px-6 py-4 border-b">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">{user?.name}</h1>
+            <span className="text-sm text-gray-600">
+              Joined {new Date(user?.created_at).toLocaleDateString()}
+            </span>
           </div>
+          
+          {/* Tabs */}
+          <div className="flex space-x-4 border-b">
+            <button
+              className={`py-2 px-4 ${activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile
+            </button>
+            <button
+              className={`py-2 px-4 ${activeTab === 'resume' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
+              onClick={() => setActiveTab('resume')}
+            >
+              Resume
+            </button>
+          </div>
+        </div>
 
-          {/* Form on the right, hidden during print */}
-          <div className="w-1/2 bg-white p-4 hide-on-print">
-            <ResumeForm initialResumeData={resumeData} setResumeData={setResumeData} />    
-          </div>
+        {/* Content */}
+        <div className="p-6">
+          {activeTab === 'profile' && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-700 mb-2">Contact</h2>
+                <p className="text-gray-600">{user?.email}</p>
+              </div>
+
+              {user?.profile && Object.keys(JSON.parse(user.profile)).length > 0 && (
+                <div className="border-t pt-4">
+                  <h2 className="text-lg font-semibold text-gray-700 mb-2">Profile Information</h2>
+                  <div className="space-y-2">
+                    {Object.entries(JSON.parse(user.profile)).map(([key, value]) => (
+                      <div key={key} className="flex">
+                        <span className="font-medium text-gray-700 w-1/3 capitalize">
+                          {key.replace(/_/g, ' ')}:
+                        </span>
+                        <span className="text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'resume' && resumeData && (
+            <div>
+              <div className="flex justify-end mb-4">
+                <PrintButton />
+              </div>
+              <Resume resumeData={resumeData} />
+            </div>
+          )}
         </div>
-        <PrintButton />
       </div>
-    </>
+    </div>
   );
 }
