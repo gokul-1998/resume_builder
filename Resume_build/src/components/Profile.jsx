@@ -115,6 +115,17 @@ export default function Profile() {
 
   const handleProfileUpdate = (updatedUser) => {
     setUser(updatedUser);
+    // If the profile is a string, parse it
+    if (typeof updatedUser.profile === 'string') {
+      try {
+        const parsedProfile = JSON.parse(updatedUser.profile);
+        setResumeData(parsedProfile);
+      } catch (error) {
+        console.error("Error parsing updated profile:", error);
+      }
+    } else {
+      setResumeData(updatedUser.profile);
+    }
   };
 
   const handleTabChange = (value) => {

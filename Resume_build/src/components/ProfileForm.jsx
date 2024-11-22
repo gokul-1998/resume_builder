@@ -37,7 +37,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     if (user) {
       const profile = user.profile ? JSON.parse(user.profile) : {};
       setFormData({
-        name: user.name || '',
+        name: user.profile_name || '',
         email: user.email || '',
         profile: {
           phone: profile.phone || '',
@@ -103,6 +103,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
         })
       });
 
+
       if (response.status === 401) {
         localStorage.removeItem('token');
         toast({
@@ -119,14 +120,24 @@ export default function ProfileForm({ user, onProfileUpdate }) {
         throw new Error(errorData.detail || 'Failed to update profile');
       }
 
-      const updatedUser = await response.json();
-      onProfileUpdate(updatedUser);
-      setIsEditing(false);
-      toast({
-        title: "Success",
-        description: "Profile updated successfully!",
-      });
-
+      if (response.ok) {
+        const updatedUser = await response.json();
+        if (onProfileUpdate) {
+          onProfileUpdate(updatedUser);
+        }
+        setIsEditing(false);
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Error",
+          description: error.detail || "Failed to update profile",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
