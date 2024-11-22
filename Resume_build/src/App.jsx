@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css';
 import { store } from './app/store';
 import { Provider, useDispatch, useSelector } from 'react-redux';
+import { AuthProvider } from './context/AuthContext';
 
 import Home from './Pages/Home.jsx';
 import SignUpPage from './Pages/signup.jsx';
@@ -46,7 +47,9 @@ function AppContent() {
 function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Provider>
   );
 }

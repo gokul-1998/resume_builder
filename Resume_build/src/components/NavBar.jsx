@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../features/auth/authSlice'
 import { Menu, X, ChevronDown, User, LogOut, FileText, Sparkles } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,15 +16,16 @@ import {
 export default function Navbar() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { user } = useSelector((state) => state.auth)
+  const { user, isAuthenticated, handleLogout: authLogout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const handleLogout = () => {
     dispatch(logout())
+    authLogout()
     navigate('/login')
   }
 
-  const menuItems = user ? [
+  const menuItems = isAuthenticated ? [
     { 
       label: 'Dashboard',
       icon: <FileText className="h-4 w-4" />,
@@ -42,7 +44,7 @@ export default function Navbar() {
     { 
       label: 'Profile',
       icon: <User className="h-4 w-4" />,
-      href: `/${user.username || user.email}`
+      href: `/${user?.username || user?.email}`
     }
   ] : []
 
@@ -61,7 +63,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {user ? (
+            {isAuthenticated ? (
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -102,11 +104,11 @@ export default function Navbar() {
                 </DropdownMenu>
 
                 <Link
-                  to={`/${user.username || user.email}`}
+                  to={`/${user?.username || user?.email}`}
                   className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600"
                 >
                   <User className="h-4 w-4 mr-2" />
-                  {user.username || user.email}
+                  {user?.username || user?.email}
                 </Link>
 
                 <Button 
@@ -156,7 +158,7 @@ export default function Navbar() {
                   <span className="ml-2">{item.label}</span>
                 </Link>
               ))}
-              {user && (
+              {isAuthenticated && (
                 <Button
                   variant="outline"
                   onClick={() => {

@@ -12,6 +12,7 @@ export const loginUser = createAsyncThunk(
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',  // Important for cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -21,9 +22,21 @@ export const loginUser = createAsyncThunk(
       }
 
       const data = await response.json();
-      // Store token in localStorage
       localStorage.setItem('token', data.access_token);
-      return data;
+      
+      // Fetch user data
+      const userResponse = await fetch(`${url}/api/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${data.access_token}`
+        }
+      });
+      
+      if (!userResponse.ok) {
+        return rejectWithValue('Failed to fetch user data');
+      }
+      
+      const userData = await userResponse.json();
+      return { ...data, user: userData };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -57,9 +70,9 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.token = action.payload.access_token;
-        state.username = action.payload.username;
+        state.username = action.payload.user.username;
         state.isAuthenticated = true;
         state.error = null;
       })

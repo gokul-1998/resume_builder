@@ -34,35 +34,67 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch(`${url}/api/auth/user/${username}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    const checkAndRefreshToken = async () => {
+      const token = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
+      
+      if (!token) {
+        window.location.href = '/login';
+        return;
       }
-    })
-      .then((res) => {
-        if (res.status === 404) {
+
+      try {
+        const response = await fetch(`${url}/api/auth/user/${username}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 401 && refreshToken) {
+          // Token expired, try to refresh
+          const refreshResponse = await fetch(`${url}/api/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include', // This is important for sending/receiving cookies
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (refreshResponse.ok) {
+            const { access_token } = await refreshResponse.json();
+            localStorage.setItem('token', access_token);
+            // Retry the original request with new token
+            const retryResponse = await fetch(`${url}/api/auth/user/${username}`, {
+              headers: {
+                'Authorization': `Bearer ${access_token}`
+              }
+            });
+            if (retryResponse.ok) {
+              const userData = await retryResponse.json();
+              setUser(userData);
+            } else {
+              window.location.href = '/login';
+            }
+          } else {
+            // Refresh token also expired
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/login';
+          }
+        } else if (response.status === 404) {
           setNotFound(true);
-          setLoading(false);
-          return null;
+        } else if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
         }
-        if (res.status === 401) {
-          window.location.href = '/login';
-          return null;
-        }
-        setNotFound(false);
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setUser(data);
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching user:", error);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    checkAndRefreshToken();
   }, [username, url]);
 
   if (notFound) {
