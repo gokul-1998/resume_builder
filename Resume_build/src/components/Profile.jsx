@@ -5,7 +5,9 @@ import ResumeForm from "./ResumeForm2";
 import Resume from "./resume1";
 import PrintButton from "./PrintButton";
 import ProfileResume from "./ProfileResume";
+import ProfileForm from "./ProfileForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Profile() {
   const { username } = useParams();
@@ -32,11 +34,20 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-    fetch(`${url}/api/auth/user/${username}`)
+    const token = localStorage.getItem('token');
+    fetch(`${url}/api/auth/user/${username}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then((res) => {
         if (res.status === 404) {
           setNotFound(true);
           setLoading(false);
+          return null;
+        }
+        if (res.status === 401) {
+          window.location.href = '/login';
           return null;
         }
         setNotFound(false);
@@ -52,15 +63,27 @@ export default function Profile() {
         console.error("Error fetching user:", error);
         setLoading(false);
       });
-  }, [username]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  }, [username, url]);
 
   if (notFound) {
     return <NotFoundPage />;
   }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-8">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  const handleProfileUpdate = (updatedUser) => {
+    setUser(updatedUser);
+  };
 
   const handleTabChange = (value) => {
     setActiveTab(value);
@@ -70,76 +93,18 @@ export default function Profile() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{user.name}'s Profile</h1>
-        <p className="text-gray-600">{user.email}</p>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+    <div className="container mx-auto p-6 space-y-8">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="resume">Resume</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="space-y-4">
-          {resumeData && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h2 className="text-xl font-semibold mb-4">About Me</h2>
-                  <p>{resumeData.aboutMe}</p>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
-                  {resumeData.contact?.map((contact, index) => (
-                    <div key={index} className="mb-2">
-                      <strong>{contact.type}:</strong> {contact.value}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h2 className="text-xl font-semibold mb-4">Skills</h2>
-                  {Object.entries(resumeData.skills || {}).map(([category, skills]) => (
-                    <div key={category} className="mb-4">
-                      <h3 className="font-medium mb-2">{category}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h2 className="text-xl font-semibold mb-4">Interests</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {resumeData.interests?.map((interest, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+        <TabsContent value="profile" className="space-y-6">
+          <ProfileForm user={user} onProfileUpdate={handleProfileUpdate} />
         </TabsContent>
 
-        <TabsContent value="resume">
+        <TabsContent value="resume" className="space-y-6">
           <ProfileResume username={username} />
         </TabsContent>
       </Tabs>
