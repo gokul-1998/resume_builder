@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function HomePage() {
   const { user, token } = useSelector((state) => state.auth);
@@ -60,29 +61,73 @@ export default function HomePage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-2 text-gray-600">Loading...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto mt-10 p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Welcome to the Home Page</h1>
-      
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-blue-600 text-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Create Professional Resumes with Ease
+            </h1>
+            <p className="text-xl mb-8">
+              Build stunning resumes that stand out and get you noticed by employers
+            </p>
+            <div className="space-x-4">
+              <Button 
+                onClick={() => navigate('/createResume')}
+                size="lg"
+                variant="secondary"
+              >
+                Create Resume
+              </Button>
+              <Button
+                onClick={() => navigate('/createAiResume')}
+                size="lg"
+                variant="outline"
+                className="bg-white text-blue-600 hover:bg-blue-50"
+              >
+                Try AI Resume Builder
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {employees.map((employee) => (
-          <Card key={employee.id}>
-            <CardHeader>
-              <CardTitle>{employee.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Email: {employee.email}</p>
-              <p>Resumes: {employee.resumes.length}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* Community Section */}
+      <section className="py-16 container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">Our Community</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {employees.map((employee) => (
+            <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                    {employee.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span>{employee.name}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-2">Email: {employee.email}</p>
+                <p className="text-gray-600">
+                  <span className="font-medium">{employee.resumes.length}</span>
+                  {' '}
+                  {employee.resumes.length === 1 ? 'Resume' : 'Resumes'} Created
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

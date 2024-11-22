@@ -1,10 +1,8 @@
-"use client"
-
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../features/auth/authSlice'
-import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react'
+import { Menu, X, ChevronDown, User, LogOut, FileText, Sparkles } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -25,123 +23,142 @@ export default function Navbar() {
     navigate('/login')
   }
 
+  const menuItems = user ? [
+    { 
+      label: 'Create Resume',
+      icon: <FileText className="h-4 w-4" />,
+      href: '/createResume'
+    },
+    { 
+      label: 'AI Resume',
+      icon: <Sparkles className="h-4 w-4" />,
+      href: '/createAiResume'
+    },
+    { 
+      label: 'Profile',
+      icon: <User className="h-4 w-4" />,
+      href: `/${user.username || user.email}`
+    }
+  ] : []
+
   return (
-    <nav className="bg-blue-600 p-4 sticky top-0 z-50 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-white text-xl font-bold">
-          <Link to="/" className="hover:underline">Resume Builder</Link>
-        </h1>
-        <div>
-          {user ? (
-            <>
-              <Link
-                to={`/${user.username || user.email}`}
-                className="text-white mr-4 hover:underline"
-              >
-                Welcome, {user.username || user.email}
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="text-white hover:underline">
-              Login
-            </Link>
-          )}
-        </div>
-        <div className="hidden md:block">
-          <div className="ml-10 flex items-baseline space-x-4">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link 
+            to="/" 
+            className="text-xl font-bold text-blue-600 flex items-center"
+          >
+            <FileText className="h-6 w-6 mr-2" />
+            Resume Builder
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost">
-                      Create <ChevronDown className="ml-2 h-4 w-4" />
+                    <Button variant="ghost" className="flex items-center">
+                      Create
+                      <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>
-                      <Link to="/createResume" className="w-full">
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/createResume" 
+                        className="flex items-center"
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
                         Create Resume
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link to="/createAiResume" className="w-full">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/createAiResume" 
+                        className="flex items-center"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
                         Create AI Resume
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
                 <Link
                   to={`/${user.username || user.email}`}
-                  className="text-primary-foreground hover:bg-primary-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
+                  className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600"
                 >
-                  <User className="inline-block mr-2 h-4 w-4" />
+                  <User className="h-4 w-4 mr-2" />
                   {user.username || user.email}
                 </Link>
-                <Button variant="secondary" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" /> Logout
+
+                <Button 
+                  variant="outline" 
+                  onClick={handleLogout}
+                  className="flex items-center text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
                 </Button>
               </>
             ) : (
               <Link to="/login">
-                <Button variant="secondary">Login</Button>
+                <Button>Login</Button>
               </Link>
             )}
           </div>
-        </div>
-        <div className="-mr-2 flex md:hidden">
-          <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span className="sr-only">Open main menu</span>
-            {isMenuOpen ? (
-              <X className="block h-6 w-6" aria-hidden="true" />
-            ) : (
-              <Menu className="block h-6 w-6" aria-hidden="true" />
-            )}
-          </Button>
-        </div>
-      </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {user ? (
-              <>
-                <Link
-                  to="/createResume"
-                  className="text-primary-foreground hover:bg-primary-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Create Resume
-                </Link>
-                <Link
-                  to="/createAiResume"
-                  className="text-primary-foreground hover:bg-primary-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Create AI Resume
-                </Link>
-                <Link
-                  to={`/${user.username || user.email}`}
-                  className="text-primary-foreground hover:bg-primary-foreground hover:text-primary block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  <User className="inline-block mr-2 h-4 w-4" />
-                  {user.username || user.email}
-                </Link>
-                <Button variant="secondary" onClick={handleLogout} className="w-full justify-start">
-                  <LogOut className="mr-2 h-4 w-4" /> Logout
-                </Button>
-              </>
-            ) : (
-              <Link to="/login" className="block w-full">
-                <Button variant="secondary" className="w-full">Login</Button>
-              </Link>
-            )}
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              className="inline-flex items-center justify-center"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
           </div>
         </div>
-      )}
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.icon}
+                  <span className="ml-2">{item.label}</span>
+                </Link>
+              ))}
+              {user && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleLogout()
+                    setIsMenuOpen(false)
+                  }}
+                  className="w-full flex items-center justify-center text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </nav>
   )
 }
