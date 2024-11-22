@@ -8,6 +8,7 @@ import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, A
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import AIImprove from './AIImprove';
 
 export default function ProfileForm({ user, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -174,6 +175,21 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     }));
   };
 
+  const handleAIImprovement = (field, improvedContent) => {
+    setFormData(prev => ({
+      ...prev,
+      profile: {
+        ...prev.profile,
+        [field]: improvedContent
+      }
+    }));
+
+    toast({
+      title: "Content Improved",
+      description: "The content has been improved with AI assistance.",
+    });
+  };
+
   if (!user) return null;
 
   return (
@@ -286,14 +302,23 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.profile.bio}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="border-input focus:ring-2 focus:ring-primary"
-                    />
+                    <div className="flex items-start">
+                      <Textarea
+                        id="bio"
+                        name="bio"
+                        value={formData.profile.bio}
+                        onChange={handleInputChange}
+                        className="flex-grow"
+                        disabled={!isEditing}
+                      />
+                      {isEditing && (
+                        <AIImprove
+                          content={formData.profile.bio}
+                          contentType="bio"
+                          onImprove={(improved) => handleAIImprovement('bio', improved)}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -311,27 +336,46 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             </CollapsibleTrigger>
             <CollapsibleContent className="px-4 pt-4 space-y-4">
               <div className="space-y-4">
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="summary">Professional Summary</Label>
-                  <Textarea
-                    id="summary"
-                    name="summary"
-                    value={formData.profile.summary}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="flex items-start">
+                    <Textarea
+                      id="summary"
+                      name="summary"
+                      value={formData.profile.summary}
+                      onChange={handleInputChange}
+                      className="flex-grow"
+                      disabled={!isEditing}
+                    />
+                    {isEditing && (
+                      <AIImprove
+                        content={formData.profile.summary}
+                        contentType="summary"
+                        onImprove={(improved) => handleAIImprovement('summary', improved)}
+                      />
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2">
+
+                <div>
                   <Label htmlFor="workExperience">Work Experience</Label>
-                  <Textarea
-                    id="workExperience"
-                    name="workExperience"
-                    value={formData.profile.workExperience}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="min-h-[150px] border-input focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="flex items-start">
+                    <Textarea
+                      id="workExperience"
+                      name="workExperience"
+                      value={formData.profile.workExperience}
+                      onChange={handleInputChange}
+                      className="flex-grow"
+                      disabled={!isEditing}
+                    />
+                    {isEditing && (
+                      <AIImprove
+                        content={formData.profile.workExperience}
+                        contentType="work_experience"
+                        onImprove={(improved) => handleAIImprovement('workExperience', improved)}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>
