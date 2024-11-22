@@ -15,12 +15,27 @@ export default function ProfileResume({ username }) {
   const fetchResume = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Not authenticated. Please login.');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(`${url}/api/resumes/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
+      if (response.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        setError('Session expired. Please login again.');
+        window.location.href = '/login';
+        return;
+      }
+
       if (response.status === 404) {
         setResume(null);
         setError(null);
@@ -33,40 +48,54 @@ export default function ProfileResume({ username }) {
       }
     } catch (err) {
       setError(err.message);
+      console.error('Error fetching resume:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveResume = async (resumeData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Not authenticated. Please login.');
+        return;
+      }
+
+      const method = resume ? 'PUT' : 'POST';
+      const response = await fetch(`${url}/api/resumes/`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resumeData)
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        setError('Session expired. Please login again.');
+        window.location.href = '/login';
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to save resume');
+      }
+
+      const data = await response.json();
+      setResume(data);
+      setError(null);
+      setIsEditing(false);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error saving resume:', err);
     }
   };
 
   useEffect(() => {
     fetchResume();
   }, [username]);
-
-  const handleSaveResume = async (resumeData) => {
-    try {
-      const token = localStorage.getItem('token');
-      const method = resume ? 'PUT' : 'POST';
-      const response = await fetch(`${url}/api/resumes/`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(resumeData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save resume');
-      }
-
-      const savedResume = await response.json();
-      setResume(savedResume);
-      setIsEditing(false);
-      fetchResume(); // Refresh the resume data
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   if (loading) {
     return (

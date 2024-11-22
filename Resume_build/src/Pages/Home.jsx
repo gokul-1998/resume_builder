@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, FileText, Sparkles, Users, ChevronRight } from "lucide-react";
+import { FileText, Sparkles, Users, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -30,8 +30,6 @@ export default function HomePage() {
   const { user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [employees, setEmployees] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [heroRef, heroInView] = useInView({
     triggerOnce: true,
@@ -41,44 +39,6 @@ export default function HomePage() {
     triggerOnce: true,
     threshold: 0.1
   });
-
-  useEffect(() => {
-    if (token) {
-      fetchEmployees();
-    }
-  }, [token]);
-
-  const fetchEmployees = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_AUTH_BACKEND_URL}` + '/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Unauthorized: Please log in again');
-        }
-        throw new Error('Failed to fetch employees');
-      }
-      const data = await response.json();
-      setEmployees(data);
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to fetch employees",
-        variant: "destructive",
-      });
-      if (error.message === 'Unauthorized: Please log in again') {
-        handleLogout();
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -100,11 +60,13 @@ export default function HomePage() {
             hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0 }
           }}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.2 }}
         >
           <Button 
-            onClick={() => navigate('/createResume')}
-            size="lg"
             className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-6 text-lg group relative overflow-hidden"
+            onClick={() => navigate('/createResume')}
           >
             <span className="relative z-10 flex items-center">
               Create Resume
@@ -133,11 +95,13 @@ export default function HomePage() {
           hidden: { opacity: 0, y: 20 },
           visible: { opacity: 1, y: 0 }
         }}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2 }}
       >
         <Button 
-          onClick={() => navigate('/login')}
-          size="lg"
           className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-6 text-lg group relative overflow-hidden"
+          onClick={() => navigate('/login')}
         >
           <span className="relative z-10 flex items-center">
             Get Started
@@ -238,8 +202,8 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      {/* Community Section - Only show when authenticated */}
-      {user && !isLoading && employees.length > 0 && (
+      {/* Resume Building Tools Section - Only show when authenticated */}
+      {user && (
         <section className="py-20 relative">
           <div className="container mx-auto px-4">
             <motion.h2 
@@ -248,7 +212,7 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              Our Community
+              Resume Building Tools
             </motion.h2>
             
             <motion.div 
@@ -258,35 +222,80 @@ export default function HomePage() {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {employees.map((employee) => (
-                <MotionCard 
-                  key={employee.id} 
-                  variants={fadeIn}
-                  className="bg-blue-900/30 backdrop-blur-lg border border-blue-500/20 hover:border-blue-400/40 transition-colors group"
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-3">
-                      <div className="relative">
-                        <span className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center text-white font-bold">
-                          {employee.name.charAt(0).toUpperCase()}
-                        </span>
-                        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 blur-lg transition-opacity" />
-                      </div>
-                      <span className="text-white group-hover:text-blue-400 transition-colors">
-                        {employee.name}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-blue-200 mb-2">{employee.email}</p>
-                    <p className="text-blue-300">
-                      <span className="font-medium text-blue-400">{employee.resumes.length}</span>
-                      {' '}
-                      {employee.resumes.length === 1 ? 'Resume' : 'Resumes'} Created
-                    </p>
-                  </CardContent>
-                </MotionCard>
-              ))}
+              <MotionCard 
+                variants={fadeIn}
+                className="bg-blue-900/30 backdrop-blur-lg border border-blue-500/20 hover:border-blue-400/40 transition-colors group"
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="relative">
+                      <FileText className="w-10 h-10 text-blue-400" />
+                    </div>
+                    <span className="text-white group-hover:text-blue-400 transition-colors">
+                      Classic Resume Builder
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-200 mb-2">Create professional resumes with our easy-to-use builder</p>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => navigate('/new-resume')}
+                  >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </MotionCard>
+
+              <MotionCard 
+                variants={fadeIn}
+                className="bg-blue-900/30 backdrop-blur-lg border border-blue-500/20 hover:border-blue-400/40 transition-colors group"
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Sparkles className="w-10 h-10 text-blue-400" />
+                    </div>
+                    <span className="text-white group-hover:text-blue-400 transition-colors">
+                      AI Resume Builder
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-200 mb-2">Let AI help you create the perfect resume</p>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => navigate('/new-ai-resume')}
+                  >
+                    Try AI Builder
+                  </Button>
+                </CardContent>
+              </MotionCard>
+
+              <MotionCard 
+                variants={fadeIn}
+                className="bg-blue-900/30 backdrop-blur-lg border border-blue-500/20 hover:border-blue-400/40 transition-colors group"
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Users className="w-10 h-10 text-blue-400" />
+                    </div>
+                    <span className="text-white group-hover:text-blue-400 transition-colors">
+                      Profile Management
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-200 mb-2">Manage your profile and saved resumes</p>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => navigate(`/profile/${user.username}`)}
+                  >
+                    View Profile
+                  </Button>
+                </CardContent>
+              </MotionCard>
             </motion.div>
           </div>
         </section>
