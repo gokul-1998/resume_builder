@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import { checkAuth } from './features/auth/authSlice';
 import { store } from './app/store';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 
@@ -19,10 +18,6 @@ import NewAIResume from './components/NewAIResume.jsx';
 function AppContent() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
-  useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
 
   return (
     <Router>

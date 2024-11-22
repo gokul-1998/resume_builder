@@ -16,9 +16,16 @@ function debounce(func, delay) {
 }
 
 export default function SignUpPage() {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ 
+    username: "", 
+    profile_name: "", 
+    email: "", 
+    password: "" 
+  });
   const [nameError, setNameError] = useState("");
   const [nameAvailable, setNameAvailable] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [emailAvailable, setEmailAvailable] = useState(false);
   const [error, setError] = useState("");
@@ -31,9 +38,12 @@ export default function SignUpPage() {
 
     // Reset availability states when field is empty
     if (value.trim() === "") {
-      if (name === "name") {
+      if (name === "profile_name") {
         setNameAvailable(false);
         setNameError("");
+      } else if (name === "username") {
+        setUsernameAvailable(false);
+        setUsernameError("");
       } else if (name === "email") {
         setEmailAvailable(false);
         setEmailError("");
@@ -41,8 +51,10 @@ export default function SignUpPage() {
       return;
     }
 
-    if (name === "name" && value.trim().length >= 3) {
+    if (name === "profile_name" && value.trim().length >= 3) {
       debouncedCheckNameAvailability(value);
+    } else if (name === "username" && value.trim().length >= 3) {
+      debouncedCheckUsernameAvailability(value);
     } else if (name === "email" && value.includes("@")) {
       debouncedCheckEmailAvailability(value);
     }
@@ -58,16 +70,39 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.status === 409) {
-        setNameError(data.detail || "Username is already taken");
+        setNameError(data.detail || "Display name is already taken");
         setNameAvailable(false);
       } else if (response.ok) {
         setNameAvailable(true);
       } else {
+        throw new Error(data.detail || "Error checking display name availability");
+      }
+    } catch (err) {
+      setNameError(err.message || "Error checking display name availability");
+      setNameAvailable(false);
+    }
+  }, 500);
+
+  const debouncedCheckUsernameAvailability = debounce(async (username) => {
+    if (!username.trim()) return;
+    setUsernameError("");
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/check-username/${encodeURIComponent(username)}`
+      );
+      const data = await response.json();
+
+      if (response.status === 409) {
+        setUsernameError(data.detail || "Username is already taken");
+        setUsernameAvailable(false);
+      } else if (response.ok) {
+        setUsernameAvailable(true);
+      } else {
         throw new Error(data.detail || "Error checking username availability");
       }
     } catch (err) {
-      setNameError(err.message || "Error checking username availability");
-      setNameAvailable(false);
+      setUsernameError(err.message || "Error checking username availability");
+      setUsernameAvailable(false);
     }
   }, 500);
 
@@ -97,10 +132,9 @@ export default function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess(false);
 
     // Validate form
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
+    if (!formData.username.trim() || !formData.profile_name.trim() || !formData.email.trim() || !formData.password.trim()) {
       setError("All fields are required");
       return;
     }
@@ -131,7 +165,7 @@ export default function SignUpPage() {
       }
 
       setSuccess(true);
-      setFormData({ name: "", email: "", password: "" });
+      setFormData({ username: "", profile_name: "", email: "", password: "" });
 
       // Show success message and redirect
       setTimeout(() => {
@@ -143,85 +177,67 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white shadow rounded-lg">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign up for Resume Builder</h2>
-          {success && (
-            <Alert className="mt-4 bg-green-50 border-green-200">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">Success!</AlertTitle>
-              <AlertDescription className="text-green-700">
-                Registration successful! Redirecting to login...
-              </AlertDescription>
-            </Alert>
-          )}
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Create an Account</h1>
+          <p className="text-gray-500">Enter your details to register</p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <Label htmlFor="name">Username</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                required
-                placeholder="Choose a username"
-                value={formData.name}
-                onChange={handleChange}
-                className={`${
-                  nameError ? "border-red-500" : nameAvailable && formData.name ? "border-green-500" : "border-gray-300"
-                } mt-1`}
-              />
-              {nameError && (
-                <p className="text-red-500 text-sm mt-1">{nameError}</p>
-              )}
-              {nameAvailable && formData.name && (
-                <p className="text-green-500 text-sm mt-1">Username is available</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`${
-                  emailError ? "border-red-500" : emailAvailable && formData.email ? "border-green-500" : "border-gray-300"
-                } mt-1`}
-              />
-              {emailError && (
-                <p className="text-red-500 text-sm mt-1">{emailError}</p>
-              )}
-              {emailAvailable && formData.email && (
-                <p className="text-green-500 text-sm mt-1">Email is available</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1"
-              />
-              <p className="text-gray-500 text-sm mt-1">Must be at least 6 characters</p>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Enter your username"
+              className={usernameError ? "border-red-500" : usernameAvailable && formData.username ? "border-green-500" : "border-gray-300"}
+            />
+            {usernameError && <p className="text-sm text-red-500">{usernameError}</p>}
+            {usernameAvailable && formData.username && <p className="text-sm text-green-500">Username is available!</p>}
           </div>
-
+          <div className="space-y-2">
+            <Label htmlFor="profile_name">Display Name</Label>
+            <Input
+              id="profile_name"
+              name="profile_name"
+              type="text"
+              value={formData.profile_name}
+              onChange={handleChange}
+              placeholder="Enter your display name"
+              className={nameError ? "border-red-500" : nameAvailable && formData.profile_name ? "border-green-500" : "border-gray-300"}
+            />
+            {nameError && <p className="text-sm text-red-500">{nameError}</p>}
+            {nameAvailable && formData.profile_name && <p className="text-sm text-green-500">Display name is available!</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              className={emailError ? "border-red-500" : emailAvailable && formData.email ? "border-green-500" : "border-gray-300"}
+            />
+            {emailError && <p className="text-sm text-red-500">{emailError}</p>}
+            {emailAvailable && formData.email && <p className="text-sm text-green-500">Email is available!</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+            />
+            <p className="text-gray-500 text-sm">Must be at least 6 characters</p>
+          </div>
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -229,12 +245,15 @@ export default function SignUpPage() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
-          <Button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            Sign up
+          {success && (
+            <Alert className="bg-green-50 text-green-700 border-green-200">
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertTitle>Success!</AlertTitle>
+              <AlertDescription>Account created successfully! Redirecting to login...</AlertDescription>
+            </Alert>
+          )}
+          <Button type="submit" className="w-full">
+            Sign Up
           </Button>
         </form>
       </div>

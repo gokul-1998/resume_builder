@@ -11,7 +11,7 @@ const api = axios.create({
 // Add request interceptor to add auth token to requests
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -38,14 +38,14 @@ api.interceptors.response.use(
                 const { access_token } = response.data;
                 
                 // Store the new access token
-                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('token', access_token);
                 
                 // Retry the original request with new token
                 originalRequest.headers.Authorization = `Bearer ${access_token}`;
                 return api(originalRequest);
             } catch (refreshError) {
                 // If refresh fails, logout the user
-                localStorage.removeItem('access_token');
+                localStorage.removeItem('token');
                 window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
@@ -60,7 +60,7 @@ const authService = {
         try {
             const response = await api.post('/login', { email, password });
             if (response.data.access_token) {
-                localStorage.setItem('access_token', response.data.access_token);
+                localStorage.setItem('token', response.data.access_token);
                 localStorage.setItem('username', response.data.username);
             }
             return response.data;
@@ -72,7 +72,7 @@ const authService = {
     async logout() {
         try {
             await api.post('/logout');
-            localStorage.removeItem('access_token');
+            localStorage.removeItem('token');
             localStorage.removeItem('username');
         } catch (error) {
             console.error('Logout error:', error);
@@ -80,11 +80,11 @@ const authService = {
     },
 
     isAuthenticated() {
-        return !!localStorage.getItem('access_token');
+        return !!localStorage.getItem('token');
     },
 
     getToken() {
-        return localStorage.getItem('access_token');
+        return localStorage.getItem('token');
     },
 
     getUsername() {

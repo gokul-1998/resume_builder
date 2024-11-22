@@ -38,11 +38,13 @@ const authSlice = createSlice({
     status: 'idle',
     error: null,
     isAuthenticated: !!localStorage.getItem('token'),
+    username: null,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.username = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token'); // Remove token from localStorage
     },
@@ -55,8 +57,9 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        state.user = action.payload;
         state.token = action.payload.access_token;
-        state.user = { username: action.payload.username };
+        state.username = action.payload.username;
         state.isAuthenticated = true;
         state.error = null;
       })

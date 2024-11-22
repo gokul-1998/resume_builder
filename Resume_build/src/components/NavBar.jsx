@@ -25,6 +25,11 @@ export default function Navbar() {
 
   const menuItems = user ? [
     { 
+      label: 'Dashboard',
+      icon: <FileText className="h-4 w-4" />,
+      href: '/dashboard'
+    },
+    { 
       label: 'Create Resume',
       icon: <FileText className="h-4 w-4" />,
       href: '/createResume'
@@ -66,6 +71,15 @@ export default function Navbar() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/dashboard" 
+                        className="flex items-center"
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link 
                         to="/createResume" 

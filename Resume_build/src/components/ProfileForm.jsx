@@ -12,12 +12,24 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    bio: '',
-    location: '',
-    website: '',
-    github: '',
-    linkedin: ''
+    profile: {
+      phone: '',
+      bio: '',
+      location: '',
+      website: '',
+      github: '',
+      linkedin: '',
+      summary: '',
+      education: '',
+      skills: '',
+      workExperience: '',
+      projects: '',
+      certifications: '',
+      languages: '',
+      interests: ''
+    }
   });
+  
   const { toast } = useToast();
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
 
@@ -27,21 +39,42 @@ export default function ProfileForm({ user, onProfileUpdate }) {
       setFormData({
         name: user.name || '',
         email: user.email || '',
-        bio: profile.bio || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        github: profile.github || '',
-        linkedin: profile.linkedin || ''
+        profile: {
+          phone: profile.phone || '',
+          bio: profile.bio || '',
+          location: profile.location || '',
+          website: profile.website || '',
+          github: profile.github || '',
+          linkedin: profile.linkedin || '',
+          summary: profile.summary || '',
+          education: profile.education || '',
+          skills: profile.skills || '',
+          workExperience: profile.workExperience || '',
+          projects: profile.projects || '',
+          certifications: profile.certifications || '',
+          languages: profile.languages || '',
+          interests: profile.interests || ''
+        }
       });
     }
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'name' || name === 'email') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        profile: {
+          ...prev.profile,
+          [name]: value
+        }
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,13 +99,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          profile: {
-            bio: formData.bio,
-            location: formData.location,
-            website: formData.website,
-            github: formData.github,
-            linkedin: formData.linkedin
-          }
+          profile: formData.profile
         })
       });
 
@@ -99,8 +126,8 @@ export default function ProfileForm({ user, onProfileUpdate }) {
         title: "Success",
         description: "Profile updated successfully!",
       });
+
     } catch (error) {
-      console.error('Error updating profile:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -112,134 +139,241 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   if (!user) return null;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-bold">Profile Information</CardTitle>
-        {!isEditing ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2"
-          >
-            <Edit2 className="h-4 w-4" />
-            Edit Profile
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsEditing(false)}
-              className="flex items-center gap-2"
-            >
-              <X className="h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              form="profile-form"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              Save
-            </Button>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent>
-        <form id="profile-form" onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                placeholder="Your full name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                placeholder="your.email@example.com"
-              />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Profile Information</CardTitle>
+            <div className="flex gap-2">
+              {!isEditing ? (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsEditing(true);
+                  }}
+                >
+                  <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
+                </Button>
+              ) : (
+                <>
+                  <Button type="submit" variant="default">
+                    <Save className="w-4 h-4 mr-2" /> Save
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                    <X className="w-4 h-4 mr-2" /> Cancel
+                  </Button>
+                </>
+              )}
             </div>
           </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  value={formData.profile.phone}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  value={formData.profile.location}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              placeholder="Tell us about yourself"
-              className="h-24"
-            />
-          </div>
+            {/* Professional Summary */}
+            <div className="space-y-2">
+              <Label htmlFor="summary">Professional Summary</Label>
+              <Textarea
+                id="summary"
+                name="summary"
+                value={formData.profile.summary}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                rows={4}
+              />
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Education */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                value={formData.location}
+              <Label htmlFor="education">Education</Label>
+              <Textarea
+                id="education"
+                name="education"
+                value={formData.profile.education}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                placeholder="City, Country"
+                rows={4}
+                placeholder="List your educational qualifications..."
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                name="website"
-                value={formData.website}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                placeholder="https://your-website.com"
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Skills */}
             <div className="space-y-2">
-              <Label htmlFor="github">GitHub</Label>
-              <Input
-                id="github"
-                name="github"
-                value={formData.github}
+              <Label htmlFor="skills">Skills</Label>
+              <Textarea
+                id="skills"
+                name="skills"
+                value={formData.profile.skills}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                placeholder="https://github.com/username"
+                rows={3}
+                placeholder="List your technical and soft skills..."
               />
             </div>
+
+            {/* Work Experience */}
             <div className="space-y-2">
-              <Label htmlFor="linkedin">LinkedIn</Label>
-              <Input
-                id="linkedin"
-                name="linkedin"
-                value={formData.linkedin}
+              <Label htmlFor="workExperience">Work Experience</Label>
+              <Textarea
+                id="workExperience"
+                name="workExperience"
+                value={formData.profile.workExperience}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                placeholder="https://linkedin.com/in/username"
+                rows={6}
+                placeholder="Detail your work experience..."
+              />
+            </div>
+
+            {/* Projects */}
+            <div className="space-y-2">
+              <Label htmlFor="projects">Projects</Label>
+              <Textarea
+                id="projects"
+                name="projects"
+                value={formData.profile.projects}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                rows={4}
+                placeholder="List your significant projects..."
+              />
+            </div>
+
+            {/* Certifications */}
+            <div className="space-y-2">
+              <Label htmlFor="certifications">Certifications</Label>
+              <Textarea
+                id="certifications"
+                name="certifications"
+                value={formData.profile.certifications}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                rows={3}
+                placeholder="List your certifications..."
+              />
+            </div>
+
+            {/* Languages */}
+            <div className="space-y-2">
+              <Label htmlFor="languages">Languages Known</Label>
+              <Input
+                id="languages"
+                name="languages"
+                value={formData.profile.languages}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                placeholder="e.g., English, Spanish, French"
+              />
+            </div>
+
+            {/* Interests */}
+            <div className="space-y-2">
+              <Label htmlFor="interests">Interests & Hobbies</Label>
+              <Input
+                id="interests"
+                name="interests"
+                value={formData.profile.interests}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                placeholder="List your interests and hobbies..."
+              />
+            </div>
+
+            {/* Social Links */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  name="website"
+                  value={formData.profile.website}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="github">GitHub</Label>
+                <Input
+                  id="github"
+                  name="github"
+                  value={formData.profile.github}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="linkedin">LinkedIn</Label>
+                <Input
+                  id="linkedin"
+                  name="linkedin"
+                  value={formData.profile.linkedin}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={formData.profile.bio}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                rows={3}
               />
             </div>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </form>
   );
 }
