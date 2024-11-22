@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit2, Save, X } from 'lucide-react';
+import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, Award, Code } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function ProfileForm({ user, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -147,14 +149,45 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     }
   };
 
+  const calculateProgress = () => {
+    const fields = Object.values(formData.profile);
+    const filledFields = fields.filter(field => field && field.trim() !== '').length;
+    return Math.round((filledFields / fields.length) * 100);
+  };
+
+  const [progress, setProgress] = useState(0);
+  const [openSections, setOpenSections] = useState({
+    personal: true,
+    professional: false,
+    education: false,
+    skills: false
+  });
+
+  useEffect(() => {
+    setProgress(calculateProgress());
+  }, [formData]);
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   if (!user) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+      <Card className="shadow-lg">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Profile Information</CardTitle>
+            <div className="space-y-2">
+              <CardTitle>Profile Information</CardTitle>
+              <div className="text-sm text-muted-foreground">
+                Profile completion: {progress}%
+              </div>
+              <Progress value={progress} className="w-[200px]" />
+            </div>
             <div className="flex gap-2">
               {!isEditing ? (
                 <Button 
@@ -164,13 +197,14 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                     e.preventDefault();
                     setIsEditing(true);
                   }}
+                  className="hover:bg-primary/10"
                 >
                   <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
                 </Button>
               ) : (
                 <>
-                  <Button type="submit" variant="default">
-                    <Save className="w-4 h-4 mr-2" /> Save
+                  <Button type="submit" variant="default" className="bg-primary hover:bg-primary/90">
+                    <Save className="w-4 h-4 mr-2" /> Save Changes
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
                     <X className="w-4 h-4 mr-2" /> Cancel
@@ -180,209 +214,202 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+        <CardContent className="space-y-6">
+          {/* Personal Information Section */}
+          <Collapsible open={openSections.personal} onOpenChange={() => toggleSection('personal')}>
+            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
+              <div className="flex items-center flex-1">
+                <User className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">Personal Information</h3>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+              {openSections.personal ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pt-4 space-y-4">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      value={formData.profile.phone}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      name="location"
+                      value={formData.profile.location}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      name="website"
+                      value={formData.profile.website}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      name="bio"
+                      value={formData.profile.bio}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="border-input focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={formData.profile.phone}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Professional Section */}
+          <Collapsible open={openSections.professional} onOpenChange={() => toggleSection('professional')}>
+            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
+              <div className="flex items-center flex-1">
+                <Briefcase className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">Professional Experience</h3>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  value={formData.profile.location}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+              {openSections.professional ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pt-4 space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="summary">Professional Summary</Label>
+                  <Textarea
+                    id="summary"
+                    name="summary"
+                    value={formData.profile.summary}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="workExperience">Work Experience</Label>
+                  <Textarea
+                    id="workExperience"
+                    name="workExperience"
+                    value={formData.profile.workExperience}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[150px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
-            </div>
+            </CollapsibleContent>
+          </Collapsible>
 
-            {/* Professional Summary */}
-            <div className="space-y-2">
-              <Label htmlFor="summary">Professional Summary</Label>
-              <Textarea
-                id="summary"
-                name="summary"
-                value={formData.profile.summary}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={4}
-              />
-            </div>
-
-            {/* Education */}
-            <div className="space-y-2">
-              <Label htmlFor="education">Education</Label>
-              <Textarea
-                id="education"
-                name="education"
-                value={formData.profile.education}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={4}
-                placeholder="List your educational qualifications..."
-              />
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-2">
-              <Label htmlFor="skills">Skills</Label>
-              <Textarea
-                id="skills"
-                name="skills"
-                value={formData.profile.skills}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={3}
-                placeholder="List your technical and soft skills..."
-              />
-            </div>
-
-            {/* Work Experience */}
-            <div className="space-y-2">
-              <Label htmlFor="workExperience">Work Experience</Label>
-              <Textarea
-                id="workExperience"
-                name="workExperience"
-                value={formData.profile.workExperience}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={6}
-                placeholder="Detail your work experience..."
-              />
-            </div>
-
-            {/* Projects */}
-            <div className="space-y-2">
-              <Label htmlFor="projects">Projects</Label>
-              <Textarea
-                id="projects"
-                name="projects"
-                value={formData.profile.projects}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={4}
-                placeholder="List your significant projects..."
-              />
-            </div>
-
-            {/* Certifications */}
-            <div className="space-y-2">
-              <Label htmlFor="certifications">Certifications</Label>
-              <Textarea
-                id="certifications"
-                name="certifications"
-                value={formData.profile.certifications}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={3}
-                placeholder="List your certifications..."
-              />
-            </div>
-
-            {/* Languages */}
-            <div className="space-y-2">
-              <Label htmlFor="languages">Languages Known</Label>
-              <Input
-                id="languages"
-                name="languages"
-                value={formData.profile.languages}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                placeholder="e.g., English, Spanish, French"
-              />
-            </div>
-
-            {/* Interests */}
-            <div className="space-y-2">
-              <Label htmlFor="interests">Interests & Hobbies</Label>
-              <Input
-                id="interests"
-                name="interests"
-                value={formData.profile.interests}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                placeholder="List your interests and hobbies..."
-              />
-            </div>
-
-            {/* Social Links */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  name="website"
-                  value={formData.profile.website}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+          {/* Education Section */}
+          <Collapsible open={openSections.education} onOpenChange={() => toggleSection('education')}>
+            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
+              <div className="flex items-center flex-1">
+                <BookOpen className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">Education & Certifications</h3>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="github">GitHub</Label>
-                <Input
-                  id="github"
-                  name="github"
-                  value={formData.profile.github}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+              {openSections.education ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pt-4 space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="education">Education</Label>
+                  <Textarea
+                    id="education"
+                    name="education"
+                    value={formData.profile.education}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="certifications">Certifications</Label>
+                  <Textarea
+                    id="certifications"
+                    name="certifications"
+                    value={formData.profile.certifications}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">LinkedIn</Label>
-                <Input
-                  id="linkedin"
-                  name="linkedin"
-                  value={formData.profile.linkedin}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
+            </CollapsibleContent>
+          </Collapsible>
 
-            {/* Bio */}
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={formData.profile.bio}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                rows={3}
-              />
-            </div>
-          </div>
+          {/* Skills Section */}
+          <Collapsible open={openSections.skills} onOpenChange={() => toggleSection('skills')}>
+            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
+              <div className="flex items-center flex-1">
+                <Code className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">Skills & Projects</h3>
+              </div>
+              {openSections.skills ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pt-4 space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="skills">Skills</Label>
+                  <Textarea
+                    id="skills"
+                    name="skills"
+                    value={formData.profile.skills}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="projects">Projects</Label>
+                  <Textarea
+                    id="projects"
+                    name="projects"
+                    value={formData.profile.projects}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="min-h-[150px] border-input focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </CardContent>
       </Card>
     </form>
