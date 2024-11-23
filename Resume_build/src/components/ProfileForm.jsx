@@ -313,11 +313,13 @@ export default function ProfileForm({ user, onProfileUpdate }) {
           {/* Bio Section */}
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
+            {isEditing && (
             <AIImprove
               content={formData.profile.bio}
               contentType="bio"
               onImprove={(improved) => handleAIImprovement('bio', improved)}
             />
+            )}
             <div
               className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
               contentEditable={isEditing}
@@ -349,6 +351,13 @@ export default function ProfileForm({ user, onProfileUpdate }) {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="summary">Professional Summary</Label>
+                  {isEditing && (
+                      <AIImprove
+                        content={formData.profile.summary}
+                        contentType="summary"
+                        onImprove={(improved) => handleAIImprovement('summary', improved)}
+                      />
+                    )}
                   <div className="flex items-start">
                     <textarea
                       id="summary"
@@ -359,18 +368,19 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       disabled={!isEditing}
                       style={{ minHeight: '2rem' }}
                     />
-                    {isEditing && (
-                      <AIImprove
-                        content={formData.profile.summary}
-                        contentType="summary"
-                        onImprove={(improved) => handleAIImprovement('summary', improved)}
-                      />
-                    )}
+                   
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="workExperience">Work Experience</Label>
+                  {isEditing && (
+                      <AIImprove
+                        content={formData.profile.workExperience}
+                        contentType="work_experience"
+                        onImprove={(improved) => handleAIImprovement('workExperience', improved)}
+                      />
+                    )}
                   <div className="flex items-start">
                     <textarea
                       id="workExperience"
@@ -381,13 +391,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       disabled={!isEditing}
                       style={{ minHeight: '2rem' }}
                     />
-                    {isEditing && (
-                      <AIImprove
-                        content={formData.profile.workExperience}
-                        contentType="work_experience"
-                        onImprove={(improved) => handleAIImprovement('workExperience', improved)}
-                      />
-                    )}
+                   
                   </div>
                 </div>
               </div>
