@@ -306,26 +306,29 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             </CollapsibleContent>
           </Collapsible>
           <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <AIImprove
-                          content={formData.profile.bio}
-                          contentType="bio"
-                          onImprove={(improved) => handleAIImprovement('bio', improved)}
-                        />
-                    <div className="flex items-start">
-                      <Textarea
-                        id="bio"
-                        name="bio"
-                        value={formData.profile.bio}
-                        onChange={handleInputChange}
-                        className="flex-grow"
-                        disabled={!isEditing}
-                      />
-                     
-                        
-                      
-                    </div>
-                  </div>
+  <Label htmlFor="bio">Bio</Label>
+  <AIImprove
+    content={formData.profile.bio}
+    contentType="bio"
+    onImprove={(improved) => handleAIImprovement('bio', improved)}
+  />
+  <div className="flex items-start">
+    <textarea
+      id="bio"
+      name="bio"
+      value={formData.profile.bio}
+      onChange={handleInputChange}
+      onInput={(e) => {
+        e.target.style.height = 'auto'; // Reset height
+        e.target.style.height = `${e.target.scrollHeight}px`; // Adjust height to fit content
+      }}
+      className="flex-grow resize-none overflow-hidden border p-2 rounded-md"
+      disabled={!isEditing}
+    />
+  </div>
+</div>
+
+
 
           {/* Professional Section */}
           <Collapsible open={openSections.professional} onOpenChange={() => toggleSection('professional')}>
