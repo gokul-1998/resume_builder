@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, Award, Code } from 'lucide-react';
+import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, Code } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -80,6 +79,13 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     }
   };
 
+  const handleTextareaChange = (e) => {
+    const { name, value } = e.target;
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    handleInputChange(e);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -105,7 +111,6 @@ export default function ProfileForm({ user, onProfileUpdate }) {
           profile: formData.profile
         })
       });
-
 
       if (response.status === 401) {
         localStorage.removeItem('token');
@@ -300,35 +305,36 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       className="border-input focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                 
                 </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
+
+          {/* Bio Section */}
           <div className="space-y-2">
-  <Label htmlFor="bio">Bio</Label>
-  <AIImprove
-    content={formData.profile.bio}
-    contentType="bio"
-    onImprove={(improved) => handleAIImprovement('bio', improved)}
-  />
-  <div className="flex items-start">
-    <textarea
-      id="bio"
-      name="bio"
-      value={formData.profile.bio}
-      onChange={handleInputChange}
-      onInput={(e) => {
-        e.target.style.height = 'auto'; // Reset height
-        e.target.style.height = `${e.target.scrollHeight}px`; // Adjust height to fit content
-      }}
-      className="flex-grow resize-none overflow-hidden border p-2 rounded-md"
-      disabled={!isEditing}
-    />
-  </div>
-</div>
-
-
+            <Label htmlFor="bio">Bio</Label>
+            <AIImprove
+              content={formData.profile.bio}
+              contentType="bio"
+              onImprove={(improved) => handleAIImprovement('bio', improved)}
+            />
+            <div
+              className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
+              contentEditable={isEditing}
+              onBlur={(e) => {
+                const newValue = e.target.innerText;
+                handleTextareaChange({
+                  target: {
+                    name: 'bio',
+                    value: newValue
+                  }
+                });
+              }}
+              suppressContentEditableWarning={true}
+            >
+              {formData.profile.bio}
+            </div>
+          </div>
 
           {/* Professional Section */}
           <Collapsible open={openSections.professional} onOpenChange={() => toggleSection('professional')}>
@@ -344,13 +350,14 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                 <div>
                   <Label htmlFor="summary">Professional Summary</Label>
                   <div className="flex items-start">
-                    <Textarea
+                    <textarea
                       id="summary"
                       name="summary"
                       value={formData.profile.summary}
-                      onChange={handleInputChange}
-                      className="flex-grow"
+                      onChange={handleTextareaChange}
+                      className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
                       disabled={!isEditing}
+                      style={{ minHeight: '2rem' }}
                     />
                     {isEditing && (
                       <AIImprove
@@ -365,13 +372,14 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                 <div>
                   <Label htmlFor="workExperience">Work Experience</Label>
                   <div className="flex items-start">
-                    <Textarea
+                    <textarea
                       id="workExperience"
                       name="workExperience"
                       value={formData.profile.workExperience}
-                      onChange={handleInputChange}
-                      className="flex-grow"
+                      onChange={handleTextareaChange}
+                      className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
                       disabled={!isEditing}
+                      style={{ minHeight: '2rem' }}
                     />
                     {isEditing && (
                       <AIImprove
@@ -399,24 +407,26 @@ export default function ProfileForm({ user, onProfileUpdate }) {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="education">Education</Label>
-                  <Textarea
+                  <textarea
                     id="education"
                     name="education"
                     value={formData.profile.education}
-                    onChange={handleInputChange}
+                    onChange={handleTextareaChange}
                     disabled={!isEditing}
-                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
+                    style={{ minHeight: '2rem' }}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="certifications">Certifications</Label>
-                  <Textarea
+                  <textarea
                     id="certifications"
                     name="certifications"
                     value={formData.profile.certifications}
-                    onChange={handleInputChange}
+                    onChange={handleTextareaChange}
                     disabled={!isEditing}
-                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
+                    style={{ minHeight: '2rem' }}
                   />
                 </div>
               </div>
@@ -436,24 +446,26 @@ export default function ProfileForm({ user, onProfileUpdate }) {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="skills">Skills</Label>
-                  <Textarea
+                  <textarea
                     id="skills"
                     name="skills"
                     value={formData.profile.skills}
-                    onChange={handleInputChange}
+                    onChange={handleTextareaChange}
                     disabled={!isEditing}
-                    className="min-h-[100px] border-input focus:ring-2 focus:ring-primary"
+                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
+                    style={{ minHeight: '2rem' }}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="projects">Projects</Label>
-                  <Textarea
+                  <textarea
                     id="projects"
                     name="projects"
                     value={formData.profile.projects}
-                    onChange={handleInputChange}
+                    onChange={handleTextareaChange}
                     disabled={!isEditing}
-                    className="min-h-[150px] border-input focus:ring-2 focus:ring-primary"
+                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
+                    style={{ minHeight: '2rem' }}
                   />
                 </div>
               </div>
