@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, Code } from 'lucide-react';
+import { Edit2, Save, X, ChevronDown, ChevronRight, User, Briefcase, BookOpen, Code, Plus, Minus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -23,7 +23,16 @@ export default function ProfileForm({ user, onProfileUpdate }) {
       linkedin: '',
       summary: '',
       education: '',
-      skills: '',
+      skills: {
+        Architectures: [''],
+        Languages: [''],
+        Frameworks: [''],
+        libraries: [''],
+        tools: [''],
+        databases: [''],
+        cloud: [''],
+        others: ['']
+      },
       workExperience: '',
       projects: '',
       certifications: '',
@@ -38,6 +47,18 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   useEffect(() => {
     if (user) {
       const profile = user.profile ? JSON.parse(user.profile) : {};
+      // Initialize skills as an object with categories if it's a string or undefined
+      const skills = typeof profile.skills === 'string' || !profile.skills ? {
+        Architectures: [''],
+        Languages: [''],
+        Frameworks: [''],
+        libraries: [''],
+        tools: [''],
+        databases: [''],
+        cloud: [''],
+        others: ['']
+      } : profile.skills;
+
       setFormData({
         name: user.profile_name || '',
         email: user.email || '',
@@ -50,7 +71,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
           linkedin: profile.linkedin || '',
           summary: profile.summary || '',
           education: profile.education || '',
-          skills: profile.skills || '',
+          skills: skills,
           workExperience: profile.workExperience || '',
           projects: profile.projects || '',
           certifications: profile.certifications || '',
@@ -156,17 +177,27 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   };
 
   const calculateProgress = () => {
-    const fields = Object.values(formData.profile);
-    const filledFields = fields.filter(field => field && field.trim() !== '').length;
-    return Math.round((filledFields / fields.length) * 100);
+    const fields = Object.entries(formData.profile).filter(([key]) => key !== 'skills');
+    const filledFields = fields.filter(([_, value]) => value && typeof value === 'string' && value.trim() !== '').length;
+    
+    // Calculate skills progress separately
+    const skillCategories = Object.values(formData.profile.skills);
+    const filledSkills = skillCategories.reduce((count, category) => {
+      return count + category.filter(skill => skill && skill.trim() !== '').length;
+    }, 0);
+    
+    const totalFields = fields.length + filledSkills;
+    const totalFilledFields = filledFields + filledSkills;
+    
+    return Math.round((totalFilledFields / totalFields) * 100);
   };
 
   const [progress, setProgress] = useState(0);
   const [openSections, setOpenSections] = useState({
     personal: true,
-    professional: false,
-    education: false,
-    skills: false
+    professional: true,
+    education: true,
+    skills: true
   });
 
   useEffect(() => {
@@ -192,6 +223,52 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     toast({
       title: "Content Improved",
       description: "The content has been improved with AI assistance.",
+    });
+  };
+
+  const handleSkillChange = (category, index, value) => {
+    setFormData(prevData => {
+      const newSkills = { ...prevData.profile.skills };
+      newSkills[category] = [...newSkills[category]];
+      newSkills[category][index] = value;
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          skills: newSkills
+        }
+      };
+    });
+  };
+
+  const addSkill = (category) => {
+    setFormData(prevData => {
+      const newSkills = { ...prevData.profile.skills };
+      newSkills[category] = [...newSkills[category], ''];
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          skills: newSkills
+        }
+      };
+    });
+  };
+
+  const removeSkill = (category, index) => {
+    setFormData(prevData => {
+      const newSkills = { ...prevData.profile.skills };
+      newSkills[category] = newSkills[category].filter((_, i) => i !== index);
+      if (newSkills[category].length === 0) {
+        newSkills[category] = [''];
+      }
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          skills: newSkills
+        }
+      };
     });
   };
 
@@ -448,17 +525,48 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             </CollapsibleTrigger>
             <CollapsibleContent className="px-4 pt-4 space-y-4">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="skills">Skills</Label>
-                  <textarea
-                    id="skills"
-                    name="skills"
-                    value={formData.profile.skills}
-                    onChange={handleTextareaChange}
-                    disabled={!isEditing}
-                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                    style={{ minHeight: '2rem' }}
-                  />
+                <div className="space-y-4">
+                  <Label>Skills</Label>
+                  {Object.entries(formData.profile.skills).map(([category, skills]) => (
+                    <div key={category} className="space-y-2">
+                      <Label className="text-sm font-medium">{category}</Label>
+                      <div className="space-y-2">
+                        {skills.map((skill, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Input
+                              value={skill}
+                              onChange={(e) => handleSkillChange(category, index, e.target.value)}
+                              disabled={!isEditing}
+                              placeholder={`Enter ${category} skill`}
+                              className="flex-1"
+                            />
+                            {isEditing && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => removeSkill(category, index)}
+                                className="h-10 w-10"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        {isEditing && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => addSkill(category)}
+                            className="w-full mt-2"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add {category} Skill
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="projects">Projects</Label>
