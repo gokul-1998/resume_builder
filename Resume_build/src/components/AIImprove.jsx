@@ -115,28 +115,30 @@ export default function AIImprove({ content, contentType, onImprove }) {
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>AI Suggested Improvement</DialogTitle>
             <DialogDescription>
               Review the suggested changes below. Click Accept to apply them or Cancel to keep the original.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4">
-            <div>
-              <h4 className="mb-2 text-sm font-medium">Original Content:</h4>
-              <div className="rounded-md bg-muted p-3">
-                <p className="text-sm">{content}</p>
+          <div className="flex-1 overflow-y-auto pr-2 my-4">
+            <div className="space-y-4">
+              <div>
+                <h4 className="mb-2 text-sm font-medium">Original Content:</h4>
+                <div className="rounded-md bg-muted p-3">
+                  <p className="text-sm whitespace-pre-wrap">{content}</p>
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 className="mb-2 text-sm font-medium">Improved Content:</h4>
-              <div className="rounded-md bg-muted p-3">
-                <p className="text-sm">{improvedContent}</p>
+              <div>
+                <h4 className="mb-2 text-sm font-medium">Improved Content:</h4>
+                <div className="rounded-md bg-muted p-3">
+                  <p className="text-sm whitespace-pre-wrap">{improvedContent}</p>
+                </div>
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 border-t pt-4">
             <Button variant="outline" onClick={handleReject}>
               <X className="w-4 h-4 mr-1" />
               Cancel
