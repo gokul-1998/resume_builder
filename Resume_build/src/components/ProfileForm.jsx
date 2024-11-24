@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import AIImprove from './AIImprove';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ProfileForm({ user, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +50,6 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   useEffect(() => {
     if (user) {
       const profile = user.profile ? JSON.parse(user.profile) : {};
-      // Initialize skills as an object with categories if it's a string or undefined
       const skills = typeof profile.skills === 'string' || !profile.skills ? {
         Architectures: [''],
         Languages: [''],
@@ -102,8 +104,6 @@ export default function ProfileForm({ user, onProfileUpdate }) {
 
   const handleTextareaChange = (e) => {
     const { name, value } = e.target;
-    e.target.style.height = 'auto';
-    e.target.style.height = `${e.target.scrollHeight}px`;
     handleInputChange(e);
   };
 
@@ -180,7 +180,6 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     const fields = Object.entries(formData.profile).filter(([key]) => key !== 'skills' && key !== 'academics' && key !== 'certifications');
     const filledFields = fields.filter(([_, value]) => value && typeof value === 'string' && value.trim() !== '').length;
     
-    // Calculate skills progress separately
     const skillCategories = Object.values(formData.profile.skills);
     const filledSkills = skillCategories.reduce((count, category) => {
       return count + category.filter(skill => skill && skill.trim() !== '').length;
@@ -196,23 +195,10 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   };
 
   const [progress, setProgress] = useState(0);
-  const [openSections, setOpenSections] = useState({
-    personal: true,
-    professional: true,
-    education: true,
-    skills: true
-  });
 
   useEffect(() => {
     setProgress(calculateProgress());
   }, [formData]);
-
-  const toggleSection = (section) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
 
   const handleAIImprovement = (field, improvedContent) => {
     setFormData(prev => ({
@@ -355,21 +341,54 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     });
   };
 
+  const [sectionCompletion, setSectionCompletion] = useState({
+    personal: false,
+    professional: false,
+    education: false,
+    skills: false
+  });
+
+  useEffect(() => {
+    const personalComplete = formData.name && formData.email && formData.profile.phone && formData.profile.location;
+    const professionalComplete = formData.profile.summary && formData.profile.workExperience;
+    const educationComplete = formData.profile.academics.some(a => a.degree && a.institution && a.year);
+    const skillsComplete = Object.values(formData.profile.skills).some(category => category.some(skill => skill.trim() !== ''));
+
+    setSectionCompletion({
+      personal: personalComplete,
+      professional: professionalComplete,
+      education: educationComplete,
+      skills: skillsComplete
+    });
+  }, [formData]);
+
   if (!user) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto p-4">
       <Card className="shadow-lg">
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div className="space-y-2">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="space-y-2 w-full md:w-auto">
               <CardTitle>Profile Information</CardTitle>
-              <div className="text-sm text-muted-foreground">
-                Profile completion: {progress}%
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-muted-foreground">
+                  Profile completion: {progress}%
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Fill in all sections to complete your profile</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-              <Progress value={progress} className="w-[200px]" />
+              <Progress value={progress} className="w-full md:w-[200px]" />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full md:w-auto">
               {!isEditing ? (
                 <Button 
                   type="button" 
@@ -378,16 +397,16 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                     e.preventDefault();
                     setIsEditing(true);
                   }}
-                  className="hover:bg-primary/10"
+                  className="w-full md:w-auto hover:bg-primary/10"
                 >
                   <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
                 </Button>
               ) : (
                 <>
-                  <Button type="submit" variant="default" className="bg-primary hover:bg-primary/90">
+                  <Button type="submit" variant="default" className="w-full md:w-auto bg-primary hover:bg-primary/90">
                     <Save className="w-4 h-4 mr-2" /> Save Changes
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="w-full md:w-auto">
                     <X className="w-4 h-4 mr-2" /> Cancel
                   </Button>
                 </>
@@ -395,19 +414,17 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Personal Information Section */}
-          <Collapsible open={openSections.personal} onOpenChange={() => toggleSection('personal')}>
-            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
-              <div className="flex items-center flex-1">
-                <User className="w-5 h-5 mr-2" />
-                <h3 className="text-lg font-semibold">Personal Information</h3>
-              </div>
-              {openSections.personal ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-4 pt-4 space-y-4">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
+        <CardContent>
+          <Tabs defaultValue="personal" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="personal">Personal</TabsTrigger>
+              <TabsTrigger value="professional">Professional</TabsTrigger>
+              <TabsTrigger value="education">Education</TabsTrigger>
+              <TabsTrigger value="skills">Skills</TabsTrigger>
+            </TabsList>
+            <TabsContent value="personal" className="mt-4">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -416,7 +433,8 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className="border-input focus:ring-2 focus:ring-primary"
+                      className="border-input focus:ring
+-2 focus:ring-primary"
                     />
                   </div>
                   <div className="space-y-2">
@@ -441,8 +459,6 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       className="border-input focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                </div>
-                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
                     <Input
@@ -454,134 +470,74 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       className="border-input focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      name="website"
-                      value={formData.profile.website}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="border-input focus:ring-2 focus:ring-primary"
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  {isEditing && (
+                    <AIImprove
+                      content={formData.profile.bio}
+                      contentType="bio"
+                      onImprove={(improved) => handleAIImprovement('bio', improved)}
                     />
-                  </div>
+                  )}
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    value={formData.profile.bio}
+                    onChange={handleTextareaChange}
+                    disabled={!isEditing}
+                    className="w-full min-h-[100px] p-2 border rounded-md focus:ring-2 focus:ring-primary"
+                  />
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Bio Section */}
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            {isEditing && (
-            <AIImprove
-              content={formData.profile.bio}
-              contentType="bio"
-              onImprove={(improved) => handleAIImprovement('bio', improved)}
-            />
-            )}
-            <div
-              className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
-              contentEditable={isEditing}
-              onBlur={(e) => {
-                const newValue = e.target.innerText;
-                handleTextareaChange({
-                  target: {
-                    name: 'bio',
-                    value: newValue
-                  }
-                });
-              }}
-              suppressContentEditableWarning={true}
-            >
-              {formData.profile.bio}
-            </div>
-          </div>
-
-          {/* Professional Section */}
-          <Collapsible open={openSections.professional} onOpenChange={() => toggleSection('professional')}>
-            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
-              <div className="flex items-center flex-1">
-                <Briefcase className="w-5 h-5 mr-2" />
-                <h3 className="text-lg font-semibold">Professional Experience</h3>
-              </div>
-              {openSections.professional ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-4 pt-4 space-y-4">
+            </TabsContent>
+            <TabsContent value="professional" className="mt-4">
               <div className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="summary">Professional Summary</Label>
                   {isEditing && (
-                      <AIImprove
-                        content={formData.profile.summary}
-                        contentType="summary"
-                        onImprove={(improved) => handleAIImprovement('summary', improved)}
-                      />
-                    )}
-                  <div
-                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
-                    contentEditable={isEditing}
-                    onBlur={(e) => {
-                      const newValue = e.target.innerText;
-                      handleTextareaChange({
-                        target: {
-                          name: 'summary',
-                          value: newValue
-                        }
-                      });
-                    }}
-                    suppressContentEditableWarning={true}
-                  >
-                    {formData.profile.summary}
-                  </div>
+                    <AIImprove
+                      content={formData.profile.summary}
+                      contentType="summary"
+                      onImprove={(improved) => handleAIImprovement('summary', improved)}
+                    />
+                  )}
+                  <textarea
+                    id="summary"
+                    name="summary"
+                    value={formData.profile.summary}
+                    onChange={handleTextareaChange}
+                    disabled={!isEditing}
+                    className="w-full min-h-[100px] p-2 border rounded-md focus:ring-2 focus:ring-primary"
+                  />
                 </div>
-
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="workExperience">Work Experience</Label>
                   {isEditing && (
-                      <AIImprove
-                        content={formData.profile.workExperience}
-                        contentType="work_experience"
-                        onImprove={(improved) => handleAIImprovement('workExperience', improved)}
-                      />
-                    )}
-                  <div
-                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
-                    contentEditable={isEditing}
-                    onBlur={(e) => {
-                      const newValue = e.target.innerText;
-                      handleTextareaChange({
-                        target: {
-                          name: 'workExperience',
-                          value: newValue
-                        }
-                      });
-                    }}
-                    suppressContentEditableWarning={true}
-                  >
-                    {formData.profile.workExperience}
-                  </div>
+                    <AIImprove
+                      content={formData.profile.workExperience}
+                      contentType="work_experience"
+                      onImprove={(improved) => handleAIImprovement('workExperience', improved)}
+                    />
+                  )}
+                  <textarea
+                    id="workExperience"
+                    name="workExperience"
+                    value={formData.profile.workExperience}
+                    onChange={handleTextareaChange}
+                    disabled={!isEditing}
+                    className="w-full min-h-[200px] p-2 border rounded-md focus:ring-2 focus:ring-primary"
+                  />
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Education Section */}
-          <Collapsible open={openSections.education} onOpenChange={() => toggleSection('education')}>
-            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
-              <div className="flex items-center flex-1">
-                <BookOpen className="w-5 h-5 mr-2" />
-                <h3 className="text-lg font-semibold">Education & Certifications</h3>
-              </div>
-              {openSections.education ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-4 pt-4 space-y-4">
+            </TabsContent>
+            <TabsContent value="education" className="mt-4">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Academics</Label>
                   {formData.profile.academics.map((academic, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="grid grid-cols-2 gap-6">
+                    <div key={index} className="space-y-2 p-4 border rounded-md">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor={`degree-${index}`}>Degree</Label>
                           <Input
@@ -620,11 +576,10 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         <Button
                           type="button"
                           variant="outline"
-                          size="icon"
                           onClick={() => removeAcademic(index)}
-                          className="h-10 w-10"
+                          className="mt-2"
                         >
-                          <Minus className="h-4 w-4" />
+                          <Minus className="h-4 w-4 mr-2" /> Remove
                         </Button>
                       )}
                     </div>
@@ -636,16 +591,15 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       onClick={addAcademic}
                       className="w-full mt-2"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Academic
+                      <Plus className="h-4 w-4 mr-2" /> Add Academic
                     </Button>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label>Certifications</Label>
                   {formData.profile.certifications.map((certification, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="grid grid-cols-2 gap-6">
+                    <div key={index} className="space-y-2 p-4 border rounded-md">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor={`title-${index}`}>Title</Label>
                           <Input
@@ -684,11 +638,10 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         <Button
                           type="button"
                           variant="outline"
-                          size="icon"
                           onClick={() => removeCertification(index)}
-                          className="h-10 w-10"
+                          className="mt-2"
                         >
-                          <Minus className="h-4 w-4" />
+                          <Minus className="h-4 w-4 mr-2" /> Remove
                         </Button>
                       )}
                     </div>
@@ -700,93 +653,70 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       onClick={addCertification}
                       className="w-full mt-2"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Certification
+                      <Plus className="h-4 w-4 mr-2" /> Add Certification
                     </Button>
                   )}
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Skills Section */}
-          <Collapsible open={openSections.skills} onOpenChange={() => toggleSection('skills')}>
-            <CollapsibleTrigger className="flex items-center w-full py-2 hover:bg-accent rounded-lg px-4">
-              <div className="flex items-center flex-1">
-                <Code className="w-5 h-5 mr-2" />
-                <h3 className="text-lg font-semibold">Skills & Projects</h3>
-              </div>
-              {openSections.skills ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-4 pt-4 space-y-4">
+            </TabsContent>
+            <TabsContent value="skills" className="mt-4">
               <div className="space-y-4">
-                <div className="space-y-4">
-                  <Label>Skills</Label>
-                  {Object.entries(formData.profile.skills).map(([category, skills]) => (
-                    <div key={category} className="space-y-2">
-                      <Label className="text-sm font-medium">{category}</Label>
-                      <div className="space-y-2">
-                        {skills.map((skill, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Input
-                              value={skill}
-                              onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                              disabled={!isEditing}
-                              placeholder={`Enter ${category} skill`}
-                              className="flex-1"
-                            />
-                            {isEditing && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => removeSkill(category, index)}
-                                className="h-10 w-10"
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                        {isEditing && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => addSkill(category)}
-                            className="w-full mt-2"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add {category} Skill
-                          </Button>
-                        )}
-                      </div>
+                {Object.entries(formData.profile.skills).map(([category, skills]) => (
+                  <div key={category} className="space-y-2">
+                    <Label className="text-lg font-semibold">{category}</Label>
+                    <div className="space-y-2">
+                      {skills.map((skill, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={skill}
+                            onChange={(e) => handleSkillChange(category, index, e.target.value)}
+                            disabled={!isEditing}
+                            placeholder={`Enter ${category} skill`}
+                            className="flex-1"
+                          />
+                          {isEditing && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeSkill(category, index)}
+                              className="h-10 w-10"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      {isEditing && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => addSkill(category)}
+                          className="w-full mt-2"
+                        >
+                          <Plus className="h-4 w-4 mr-2" /> Add {category} Skill
+                        </Button>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
                 <div className="space-y-2">
                   <Label htmlFor="projects">Projects</Label>
-                  <div
-                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
-                    contentEditable={isEditing}
-                    onBlur={(e) => {
-                      const newValue = e.target.innerText;
-                      handleTextareaChange({
-                        target: {
-                          name: 'projects',
-                          value: newValue
-                        }
-                      });
-                    }}
-                    suppressContentEditableWarning={true}
-                  >
-                    {formData.profile.projects}
-                  </div>
+                  <textarea
+                    id="projects"
+                    name="projects"
+                    value={formData.profile.projects}
+                    onChange={handleTextareaChange}
+                    disabled={!isEditing}
+                    className="w-full min-h-[200px] p-2 border rounded-md focus:ring-2 focus:ring-primary"
+                  />
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </form>
   );
 }
+
