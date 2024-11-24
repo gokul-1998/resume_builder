@@ -730,18 +730,37 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         <TabsContent value="manual">
                           <div className="mb-4">
                             <Label className="font-semibold">Assessed Skills</Label>
-                            {Object.entries(assessedSkills).map(([category, skills]) => (
-                              <div key={category} className="mt-2">
-                                <Label className="text-sm text-muted-foreground">{category}</Label>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  {skills.map((skill, index) => (
-                                    <Badge key={index} variant="secondary">
-                                      {skill}
-                                    </Badge>
-                                  ))}
+                            <div className="mt-4">
+                              <Label className="text-sm text-green-600">Known Skills</Label>
+                              {assessedSkills.known && Object.entries(assessedSkills.known).map(([category, skills]) => (
+                                <div key={category} className="mt-2">
+                                  <Label className="text-sm text-muted-foreground">{category}</Label>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {skills.map((skill, index) => (
+                                      <Badge key={index} variant="secondary" className="bg-green-100">
+                                        {skill}
+                                      </Badge>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
+
+                            <div className="mt-4">
+                              <Label className="text-sm text-yellow-600">Skills to Learn</Label>
+                              {assessedSkills.unknown && Object.entries(assessedSkills.unknown).map(([category, skills]) => (
+                                <div key={category} className="mt-2">
+                                  <Label className="text-sm text-muted-foreground">{category}</Label>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {skills.map((skill, index) => (
+                                      <Badge key={index} variant="secondary" className="bg-yellow-100">
+                                        {skill}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                           <Separator className="my-4" />
                           <div className="mb-4">
