@@ -10,10 +10,19 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import AIImprove from './AIImprove';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle, CheckCircle2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SkillAssessment from './SkillAssessment';
 
 export default function ProfileForm({ user, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isOpen, setIsOpen] = useState({
+    personalInfo: true,
+    experience: true,
+    education: true,
+    skills: true,
+    projects: true,
+    certifications: true
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -362,6 +371,13 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     });
   }, [formData]);
 
+  const toggleSection = (section) => {
+    setIsOpen(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   if (!user) return null;
 
   return (
@@ -433,8 +449,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      className="border-input focus:ring
--2 focus:ring-primary"
+                      className="border-input focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div className="space-y-2">
@@ -660,58 +675,77 @@ export default function ProfileForm({ user, onProfileUpdate }) {
               </div>
             </TabsContent>
             <TabsContent value="skills" className="mt-4">
-              <div className="space-y-4">
-                {Object.entries(formData.profile.skills).map(([category, skills]) => (
-                  <div key={category} className="space-y-2">
-                    <Label className="text-lg font-semibold">{category}</Label>
-                    <div className="space-y-2">
-                      {skills.map((skill, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            value={skill}
-                            onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                            disabled={!isEditing}
-                            placeholder={`Enter ${category} skill`}
-                            className="flex-1"
-                          />
-                          {isEditing && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => removeSkill(category, index)}
-                              className="h-10 w-10"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                      {isEditing && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => addSkill(category)}
-                          className="w-full mt-2"
-                        >
-                          <Plus className="h-4 w-4 mr-2" /> Add {category} Skill
-                        </Button>
-                      )}
+              <Collapsible open={isOpen.skills} onOpenChange={() => toggleSection('skills')}>
+                <CollapsibleTrigger className="flex items-center w-full">
+                  <div className="flex items-center justify-between w-full py-2">
+                    <div className="flex items-center gap-2">
+                      <Code className="h-5 w-5" />
+                      <h2 className="text-lg font-semibold">Skills</h2>
                     </div>
+                    {isOpen.skills ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                   </div>
-                ))}
-                <div className="space-y-2">
-                  <Label htmlFor="projects">Projects</Label>
-                  <textarea
-                    id="projects"
-                    name="projects"
-                    value={formData.profile.projects}
-                    onChange={handleTextareaChange}
-                    disabled={!isEditing}
-                    className="w-full min-h-[200px] p-2 border rounded-md focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Card>
+                    <CardContent className="p-4">
+                      <Tabs defaultValue="manual">
+                        <TabsList className="mb-4">
+                          <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                          <TabsTrigger value="assessment">Skill Assessment</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="manual">
+                          {Object.entries(formData.profile.skills).map(([category, skills]) => (
+                            <div key={category} className="mb-4">
+                              <Label className="font-semibold">{category}</Label>
+                              {skills.map((skill, index) => (
+                                <div key={index} className="flex items-center gap-2 mt-2">
+                                  <Input
+                                    value={skill}
+                                    onChange={(e) => handleSkillChange(category, index, e.target.value)}
+                                    disabled={!isEditing}
+                                    placeholder={`Add ${category} skill`}
+                                  />
+                                  {isEditing && (
+                                    <>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => removeSkill(category, index)}
+                                      >
+                                        <Minus className="h-4 w-4" />
+                                      </Button>
+                                      {index === skills.length - 1 && (
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => addSkill(category)}
+                                        >
+                                          <Plus className="h-4 w-4" />
+                                        </Button>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="assessment">
+                          <SkillAssessment 
+                            userId={user?.id || user?.user_id} 
+                            onComplete={() => {
+                              // Refresh the user's profile data after assessment
+                              fetchUserProfile();
+                            }}
+                          />
+                        </TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -719,4 +753,3 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     </form>
   );
 }
-
