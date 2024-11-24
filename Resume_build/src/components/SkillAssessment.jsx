@@ -10,6 +10,7 @@ export default function SkillAssessment({ userId, onComplete }) {
   const [progress, setProgress] = useState({ answered: 0, total: 0, percent_complete: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [currentSkills, setCurrentSkills] = useState({});
   const { toast } = useToast();
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
 
@@ -46,6 +47,7 @@ export default function SkillAssessment({ userId, onComplete }) {
       setCurrentQuestion(data.question);
       setProgress(data.progress);
       setIsCompleted(false);
+      setCurrentSkills({});
     } catch (error) {
       toast({
         title: "Error",
@@ -61,7 +63,6 @@ export default function SkillAssessment({ userId, onComplete }) {
 
     setIsLoading(true);
     try {
-      // Create URLSearchParams for the query parameters
       const params = new URLSearchParams({
         skill: currentQuestion.skill,
         has_skill: hasSkill
@@ -84,6 +85,15 @@ export default function SkillAssessment({ userId, onComplete }) {
       }
 
       const data = await response.json();
+      setCurrentSkills(data.current_skills);
+
+      toast({
+        title: hasSkill ? "Skill Added" : "Skill Skipped",
+        description: hasSkill 
+          ? `${currentQuestion.skill} has been added to your profile`
+          : `${currentQuestion.skill} was not added to your profile`,
+        variant: hasSkill ? "default" : "secondary",
+      });
 
       if (data.message === "Assessment completed") {
         setIsCompleted(true);
@@ -107,6 +117,35 @@ export default function SkillAssessment({ userId, onComplete }) {
       });
     }
     setIsLoading(false);
+  };
+
+  const renderCurrentSkills = () => {
+    if (!currentSkills || Object.keys(currentSkills).length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mt-6 space-y-4">
+        <h3 className="text-lg font-semibold">Your Current Skills</h3>
+        <div className="space-y-3">
+          {Object.entries(currentSkills).map(([category, skills]) => (
+            <div key={category} className="space-y-2">
+              <h4 className="text-md font-medium text-gray-700">{category}</h4>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -172,6 +211,8 @@ export default function SkillAssessment({ userId, onComplete }) {
                 {progress.answered} of {progress.total} questions answered
               </p>
             </div>
+
+            {renderCurrentSkills()}
           </div>
         )}
 
@@ -181,6 +222,7 @@ export default function SkillAssessment({ userId, onComplete }) {
               <CheckCircle2 className="h-5 w-5" />
               <p>Assessment completed!</p>
             </div>
+            {renderCurrentSkills()}
             <Button onClick={startAssessment}>Start New Assessment</Button>
           </div>
         )}

@@ -12,6 +12,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle, CheckCircle2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SkillAssessment from './SkillAssessment';
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function ProfileForm({ user, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +25,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
     projects: true,
     certifications: true
   });
+  const [assessedSkills, setAssessedSkills] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -55,6 +58,36 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   
   const { toast } = useToast();
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
+
+  const fetchAssessedSkills = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(`${url}/api/skills/user/${user.id}`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch assessed skills');
+      }
+      
+      const data = await response.json();
+      setAssessedSkills(data);
+    } catch (error) {
+      console.error('Error fetching assessed skills:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch your assessed skills",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchAssessedSkills();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -695,41 +728,60 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         </TabsList>
 
                         <TabsContent value="manual">
-                          {Object.entries(formData.profile.skills).map(([category, skills]) => (
-                            <div key={category} className="mb-4">
-                              <Label className="font-semibold">{category}</Label>
-                              {skills.map((skill, index) => (
-                                <div key={index} className="flex items-center gap-2 mt-2">
-                                  <Input
-                                    value={skill}
-                                    onChange={(e) => handleSkillChange(category, index, e.target.value)}
-                                    disabled={!isEditing}
-                                    placeholder={`Add ${category} skill`}
-                                  />
-                                  {isEditing && (
-                                    <>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => removeSkill(category, index)}
-                                      >
-                                        <Minus className="h-4 w-4" />
-                                      </Button>
-                                      {index === skills.length - 1 && (
+                          <div className="mb-4">
+                            <Label className="font-semibold">Assessed Skills</Label>
+                            {Object.entries(assessedSkills).map(([category, skills]) => (
+                              <div key={category} className="mt-2">
+                                <Label className="text-sm text-muted-foreground">{category}</Label>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {skills.map((skill, index) => (
+                                    <Badge key={index} variant="secondary">
+                                      {skill}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <Separator className="my-4" />
+                          <div className="mb-4">
+                            <Label className="font-semibold">Manual Skills</Label>
+                            {Object.entries(formData.profile.skills).map(([category, skills]) => (
+                              <div key={category} className="mb-4">
+                                <Label className="text-sm text-muted-foreground">{category}</Label>
+                                {skills.map((skill, index) => (
+                                  <div key={index} className="flex items-center gap-2 mt-2">
+                                    <Input
+                                      value={skill}
+                                      onChange={(e) => handleSkillChange(category, index, e.target.value)}
+                                      disabled={!isEditing}
+                                      placeholder={`Add ${category} skill`}
+                                    />
+                                    {isEditing && (
+                                      <>
                                         <Button
                                           variant="ghost"
                                           size="icon"
-                                          onClick={() => addSkill(category)}
+                                          onClick={() => removeSkill(category, index)}
                                         >
-                                          <Plus className="h-4 w-4" />
+                                          <Minus className="h-4 w-4" />
                                         </Button>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          ))}
+                                        {index === skills.length - 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => addSkill(category)}
+                                          >
+                                            <Plus className="h-4 w-4" />
+                                          </Button>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
                         </TabsContent>
 
                         <TabsContent value="assessment">
