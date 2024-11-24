@@ -22,7 +22,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
       github: '',
       linkedin: '',
       summary: '',
-      education: '',
+      academics: [{ degree: '', institution: '', year: '' }],
       skills: {
         Architectures: [''],
         Languages: [''],
@@ -35,7 +35,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
       },
       workExperience: '',
       projects: '',
-      certifications: '',
+      certifications: [{ title: '', organization: '', year: '' }],
       languages: '',
       interests: ''
     }
@@ -70,11 +70,11 @@ export default function ProfileForm({ user, onProfileUpdate }) {
           github: profile.github || '',
           linkedin: profile.linkedin || '',
           summary: profile.summary || '',
-          education: profile.education || '',
+          academics: profile.academics || [{ degree: '', institution: '', year: '' }],
           skills: skills,
           workExperience: profile.workExperience || '',
           projects: profile.projects || '',
-          certifications: profile.certifications || '',
+          certifications: profile.certifications || [{ title: '', organization: '', year: '' }],
           languages: profile.languages || '',
           interests: profile.interests || ''
         }
@@ -177,7 +177,7 @@ export default function ProfileForm({ user, onProfileUpdate }) {
   };
 
   const calculateProgress = () => {
-    const fields = Object.entries(formData.profile).filter(([key]) => key !== 'skills');
+    const fields = Object.entries(formData.profile).filter(([key]) => key !== 'skills' && key !== 'academics' && key !== 'certifications');
     const filledFields = fields.filter(([_, value]) => value && typeof value === 'string' && value.trim() !== '').length;
     
     // Calculate skills progress separately
@@ -186,8 +186,11 @@ export default function ProfileForm({ user, onProfileUpdate }) {
       return count + category.filter(skill => skill && skill.trim() !== '').length;
     }, 0);
     
-    const totalFields = fields.length + filledSkills;
-    const totalFilledFields = filledFields + filledSkills;
+    const academics = formData.profile.academics.filter(academic => academic.degree && academic.institution && academic.year).length;
+    const certifications = formData.profile.certifications.filter(certification => certification.title && certification.organization && certification.year).length;
+    
+    const totalFields = fields.length + filledSkills + academics + certifications;
+    const totalFilledFields = filledFields + filledSkills + academics + certifications;
     
     return Math.round((totalFilledFields / totalFields) * 100);
   };
@@ -267,6 +270,86 @@ export default function ProfileForm({ user, onProfileUpdate }) {
         profile: {
           ...prevData.profile,
           skills: newSkills
+        }
+      };
+    });
+  };
+
+  const handleAcademicChange = (index, field, value) => {
+    setFormData(prevData => {
+      const newAcademics = [...prevData.profile.academics];
+      newAcademics[index][field] = value;
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          academics: newAcademics
+        }
+      };
+    });
+  };
+
+  const addAcademic = () => {
+    setFormData(prevData => {
+      const newAcademics = [...prevData.profile.academics, { degree: '', institution: '', year: '' }];
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          academics: newAcademics
+        }
+      };
+    });
+  };
+
+  const removeAcademic = (index) => {
+    setFormData(prevData => {
+      const newAcademics = prevData.profile.academics.filter((_, i) => i !== index);
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          academics: newAcademics
+        }
+      };
+    });
+  };
+
+  const handleCertificationChange = (index, field, value) => {
+    setFormData(prevData => {
+      const newCertifications = [...prevData.profile.certifications];
+      newCertifications[index][field] = value;
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          certifications: newCertifications
+        }
+      };
+    });
+  };
+
+  const addCertification = () => {
+    setFormData(prevData => {
+      const newCertifications = [...prevData.profile.certifications, { title: '', organization: '', year: '' }];
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          certifications: newCertifications
+        }
+      };
+    });
+  };
+
+  const removeCertification = (index) => {
+    setFormData(prevData => {
+      const newCertifications = prevData.profile.certifications.filter((_, i) => i !== index);
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          certifications: newCertifications
         }
       };
     });
@@ -435,17 +518,21 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         onImprove={(improved) => handleAIImprovement('summary', improved)}
                       />
                     )}
-                  <div className="flex items-start">
-                    <textarea
-                      id="summary"
-                      name="summary"
-                      value={formData.profile.summary}
-                      onChange={handleTextareaChange}
-                      className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                      disabled={!isEditing}
-                      style={{ minHeight: '2rem' }}
-                    />
-                   
+                  <div
+                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
+                    contentEditable={isEditing}
+                    onBlur={(e) => {
+                      const newValue = e.target.innerText;
+                      handleTextareaChange({
+                        target: {
+                          name: 'summary',
+                          value: newValue
+                        }
+                      });
+                    }}
+                    suppressContentEditableWarning={true}
+                  >
+                    {formData.profile.summary}
                   </div>
                 </div>
 
@@ -458,17 +545,21 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                         onImprove={(improved) => handleAIImprovement('workExperience', improved)}
                       />
                     )}
-                  <div className="flex items-start">
-                    <textarea
-                      id="workExperience"
-                      name="workExperience"
-                      value={formData.profile.workExperience}
-                      onChange={handleTextareaChange}
-                      className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                      disabled={!isEditing}
-                      style={{ minHeight: '2rem' }}
-                    />
-                   
+                  <div
+                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
+                    contentEditable={isEditing}
+                    onBlur={(e) => {
+                      const newValue = e.target.innerText;
+                      handleTextareaChange({
+                        target: {
+                          name: 'workExperience',
+                          value: newValue
+                        }
+                      });
+                    }}
+                    suppressContentEditableWarning={true}
+                  >
+                    {formData.profile.workExperience}
                   </div>
                 </div>
               </div>
@@ -487,28 +578,132 @@ export default function ProfileForm({ user, onProfileUpdate }) {
             <CollapsibleContent className="px-4 pt-4 space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="education">Education</Label>
-                  <textarea
-                    id="education"
-                    name="education"
-                    value={formData.profile.education}
-                    onChange={handleTextareaChange}
-                    disabled={!isEditing}
-                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                    style={{ minHeight: '2rem' }}
-                  />
+                  <Label>Academics</Label>
+                  {formData.profile.academics.map((academic, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor={`degree-${index}`}>Degree</Label>
+                          <Input
+                            id={`degree-${index}`}
+                            name="degree"
+                            value={academic.degree}
+                            onChange={(e) => handleAcademicChange(index, 'degree', e.target.value)}
+                            disabled={!isEditing}
+                            className="border-input focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`institution-${index}`}>Institution</Label>
+                          <Input
+                            id={`institution-${index}`}
+                            name="institution"
+                            value={academic.institution}
+                            onChange={(e) => handleAcademicChange(index, 'institution', e.target.value)}
+                            disabled={!isEditing}
+                            className="border-input focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`year-${index}`}>Year</Label>
+                        <Input
+                          id={`year-${index}`}
+                          name="year"
+                          value={academic.year}
+                          onChange={(e) => handleAcademicChange(index, 'year', e.target.value)}
+                          disabled={!isEditing}
+                          className="border-input focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      {isEditing && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeAcademic(index)}
+                          className="h-10 w-10"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addAcademic}
+                      className="w-full mt-2"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Academic
+                    </Button>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="certifications">Certifications</Label>
-                  <textarea
-                    id="certifications"
-                    name="certifications"
-                    value={formData.profile.certifications}
-                    onChange={handleTextareaChange}
-                    disabled={!isEditing}
-                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                    style={{ minHeight: '2rem' }}
-                  />
+                  <Label>Certifications</Label>
+                  {formData.profile.certifications.map((certification, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor={`title-${index}`}>Title</Label>
+                          <Input
+                            id={`title-${index}`}
+                            name="title"
+                            value={certification.title}
+                            onChange={(e) => handleCertificationChange(index, 'title', e.target.value)}
+                            disabled={!isEditing}
+                            className="border-input focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`organization-${index}`}>Organization</Label>
+                          <Input
+                            id={`organization-${index}`}
+                            name="organization"
+                            value={certification.organization}
+                            onChange={(e) => handleCertificationChange(index, 'organization', e.target.value)}
+                            disabled={!isEditing}
+                            className="border-input focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`year-${index}`}>Year</Label>
+                        <Input
+                          id={`year-${index}`}
+                          name="year"
+                          value={certification.year}
+                          onChange={(e) => handleCertificationChange(index, 'year', e.target.value)}
+                          disabled={!isEditing}
+                          className="border-input focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      {isEditing && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeCertification(index)}
+                          className="h-10 w-10"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addCertification}
+                      className="w-full mt-2"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Certification
+                    </Button>
+                  )}
                 </div>
               </div>
             </CollapsibleContent>
@@ -570,15 +765,22 @@ export default function ProfileForm({ user, onProfileUpdate }) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="projects">Projects</Label>
-                  <textarea
-                    id="projects"
-                    name="projects"
-                    value={formData.profile.projects}
-                    onChange={handleTextareaChange}
-                    disabled={!isEditing}
-                    className="w-full resize-none overflow-hidden border p-2 rounded-md focus:ring-2 focus:ring-primary"
-                    style={{ minHeight: '2rem' }}
-                  />
+                  <div
+                    className="w-full min-h-[2rem] border p-2 rounded-md focus:ring-2 focus:ring-primary font-xl"
+                    contentEditable={isEditing}
+                    onBlur={(e) => {
+                      const newValue = e.target.innerText;
+                      handleTextareaChange({
+                        target: {
+                          name: 'projects',
+                          value: newValue
+                        }
+                      });
+                    }}
+                    suppressContentEditableWarning={true}
+                  >
+                    {formData.profile.projects}
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>
