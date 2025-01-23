@@ -4,7 +4,7 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/login', {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -12,19 +12,20 @@ export const loginUser = createAsyncThunk(
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Login failed');
+        // Use the server's error message if available, otherwise use a generic message
+        return rejectWithValue(data.detail || data.message || 'Login failed. Please check your credentials.');
       }
 
-      const data = await response.json();
-      const username= data.username;
+      const username = data.username;
       localStorage.setItem('token', data.access_token);
-      
       localStorage.setItem('user', JSON.stringify({ username }));
       
       return { token: data.access_token, user: { username } };
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue('Network error. Please check your connection.');
     }
   }
 );

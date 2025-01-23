@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from 'react-router-dom';
 import { loginUser } from '../features/auth/authSlice';
-// import { RootState, AppDispatch } from '../app/store';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { handleLogin } = useAuth();
   const { status, error, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -28,6 +29,8 @@ export default function LoginPage() {
     e.preventDefault();
     const resultAction = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(resultAction)) {
+      // Update AuthContext with user data
+      await handleLogin(resultAction.payload.user);
       navigate('/');
     }
   };

@@ -16,20 +16,18 @@ export default function LoginPage({ onLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const { status, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { status, error, isAuthenticated, username } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
+    if (isAuthenticated && username) {
+      navigate(`/${username}`, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, username, navigate]);
 
 const handleSubmit = async (e) => {
     e.preventDefault();
     const resultAction = await dispatch(loginUser({ email, password }));
-    if (loginUser.fulfilled.match(resultAction)) {
-      navigate('/');
-    }
+    // Let the useEffect handle navigation after successful login
   };
 
   return (

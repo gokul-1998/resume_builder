@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useParams, useLocation } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import ResumeForm from "./ResumeForm2";
 import Resume from "./resume1";
 import PrintButton from "./PrintButton";
+import ProfileResume from "./ProfileResume";
+import ProfileForm from "./ProfileForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Profile() {
   const { username } = useParams();
@@ -14,9 +17,9 @@ export default function Profile() {
   const [notFound, setNotFound] = useState(false);
   const url = `${import.meta.env.VITE_AUTH_BACKEND_URL}` || "http://localhost:8000";
   const [resumeData, setResumeData] = useState(null);
+  const [activeTab, setActiveTab] = useState(new URLSearchParams(location.search).get("tab") || "profile");
 
   const queryParams = new URLSearchParams(location.search);
-  const tab = queryParams.get("tab");
   
   useEffect(() => {
     if (user?.profile) {
@@ -31,116 +34,123 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-    fetch(`${url}/users/${username}`)
-      .then((res) => {
-        if (res.status === 404) {
+    const checkAndRefreshToken = async () => {
+      const token = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
+      
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${url}/api/auth/user/${username}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 401 && refreshToken) {
+          // Token expired, try to refresh
+          const refreshResponse = await fetch(`${url}/api/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include', // This is important for sending/receiving cookies
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (refreshResponse.ok) {
+            const { access_token } = await refreshResponse.json();
+            localStorage.setItem('token', access_token);
+            // Retry the original request with new token
+            const retryResponse = await fetch(`${url}/api/auth/user/${username}`, {
+              headers: {
+                'Authorization': `Bearer ${access_token}`
+              }
+            });
+            if (retryResponse.ok) {
+              const userData = await retryResponse.json();
+              setUser(userData);
+            } else {
+              window.location.href = '/login';
+            }
+          } else {
+            // Refresh token also expired
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/login';
+          }
+        } else if (response.status === 404) {
           setNotFound(true);
-          setLoading(false);
-          return null;
+        } else if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
         }
-        setNotFound(false);
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setUser(data);
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching user:", error);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    checkAndRefreshToken();
   }, [username, url]);
-  
-  const userFromRedux = useSelector((state) => state.user);
-  const [profilePicture, setProfilePicture] = useState(
-    userFromRedux?.profilePicture || ""
-  );
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicture(reader.result);
-        // Here you would typically upload the file to your server
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   if (notFound) {
     return <NotFoundPage />;
   }
 
-  return (
-    <>
-      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-        {/* User profile details */}
-        <h1 style={{ textAlign: "left", marginBottom: "20px" }}>
-          <span style={{
-            color: "white",
-            fontWeight: "bold",
-            backgroundColor: "green",
-            padding: "5px",
-            borderRadius: "5px",
-            textTransform: "capitalize",
-          }}>
-            {user?.name || username}'s
-          </span>
-          &nbsp;&nbsp; Profile
-        </h1>
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <img
-            src={profilePicture || "https://via.placeholder.com/150"}
-            alt="Profile"
-            style={{
-              borderRadius: "50%",
-              width: "150px",
-              height: "150px",
-              objectFit: "cover",
-              border: "2px solid #ddd",
-            }}
-          />
-        </div>
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{
-              display: "block",
-              margin: "0 auto",
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <h3>User Details</h3>
-          <p><strong>Username:</strong> {user?.name || "N/A"}</p>
-          <p><strong>Email:</strong> {user?.email || "N/A"}</p>
-          <p><strong>Joined:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}</p>
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-8">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
         </div>
       </div>
-     
-      <div className="App">
-        <div className="flex flex-row h-screen">
-          {/* Resume on the left */}
-          <div className="w-1/2 bg-gray-100 p-4">
-            <Resume resumeData={resumeData}/>
-          </div>
+    );
+  }
 
-          {/* Form on the right, hidden during print */}
-          <div className="w-1/2 bg-white p-4 hide-on-print">
-            <ResumeForm initialResumeData={resumeData} setResumeData={setResumeData} />    
-          </div>
-        </div>
-        <PrintButton />
-      </div>
-    </>
+  const handleProfileUpdate = (updatedUser) => {
+    setUser(updatedUser);
+    // If the profile is a string, parse it
+    if (typeof updatedUser.profile === 'string') {
+      try {
+        const parsedProfile = JSON.parse(updatedUser.profile);
+        setResumeData(parsedProfile);
+      } catch (error) {
+        console.error("Error parsing updated profile:", error);
+      }
+    } else {
+      setResumeData(updatedUser.profile);
+    }
+  };
+
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    const newParams = new URLSearchParams(location.search);
+    newParams.set("tab", value);
+    window.history.pushState({}, "", `${location.pathname}?${newParams.toString()}`);
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-8">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="resume">Resume</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-6">
+          <ProfileForm user={user} onProfileUpdate={handleProfileUpdate} />
+        </TabsContent>
+
+        <TabsContent value="resume" className="space-y-6">
+          <ProfileResume username={username} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
